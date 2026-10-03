@@ -101,7 +101,10 @@ export function Bar({ value, color = "var(--arc)", label }: { value: number; col
   const v = Math.round(Math.max(0, Math.min(1, value)) * 100);
   return (
     <div className="h-1.5 overflow-hidden rounded-full bg-line" role="progressbar" aria-valuenow={v} aria-valuemin={0} aria-valuemax={100} aria-label={label}>
-      <div className="h-full rounded-full" style={{ width: `${v}%`, background: color, transition: "width 800ms var(--ease)" }} />
+      <div
+        className="h-full w-full rounded-full"
+        style={{ background: color, transform: `scaleX(${v / 100})`, transformOrigin: "left center", transition: "transform 800ms var(--ease)" }}
+      />
     </div>
   );
 }

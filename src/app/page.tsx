@@ -74,7 +74,7 @@ export default function Home() {
             <p className="mt-6 max-w-xl text-lg leading-8 text-muted">
               A DSA roadmap that adapts to you: a plan for today, revision before you forget, and a shower of sparks for every problem you solve.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link href="/login" className="btn btn-arc !min-h-14 !px-7 !text-base">
                 Start grinding <Icon name="arrow" size={18} />
               </Link>
