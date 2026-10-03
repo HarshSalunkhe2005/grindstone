@@ -67,8 +67,14 @@ html {
   scrollbar-color: var(--line-strong) var(--bg);
 }
 
+/* The room: a warm glow from the wheel at the bottom left, cool light high on the right, steel grain over all. */
 body {
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: radial-gradient(60rem 40rem at 0% 100%, rgba(255, 138, 61, 0.07), transparent 70%),
+    radial-gradient(55rem 38rem at 100% 0%, rgba(92, 200, 255, 0.07), transparent 70%), var(--grain);
+  background-attachment: fixed;
+  background-size: auto, auto, 180px 180px;
+  background-blend-mode: normal, normal, soft-light;
   color: var(--text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;

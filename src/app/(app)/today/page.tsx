@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CountUp } from "@/components/count-up";
 import { ProblemRow } from "@/components/problem-row";
 import { ReviewQueue, type DueItem } from "@/components/review-queue";
-import { Bar, Icon, Ring, WheelArt } from "@/components/ui";
+import { Bar, DIFF_COLOR, Emblem, Icon, Ring, WheelArt } from "@/components/ui";
 import { loadUserContext } from "@/lib/data";
 import { addDays, daysUntil, greeting, longDate } from "@/lib/game";
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Today" };
 
 export default async function TodayPage() {
   const ctx = await loadUserContext();
-  const { profile, tz, rec, due, dueToday, picks, perDay, streak, today, solvedToday, goal, level, solvedIds } = ctx;
+  const { profile, tz, stats, badges, progress, rec, due, dueToday, picks, perDay, streak, today, solvedToday, goal, level, solvedIds } = ctx;
 
   const topicName = new Map(ctx.topics.map((t) => [t.id, t.title]));
   const dueItems: DueItem[] = dueToday.map(({ progress, problem }) => ({
@@ -52,6 +52,17 @@ export default async function TodayPage() {
     return { day, count: perDay.get(day) ?? 0, label: new Intl.DateTimeFormat("en", { weekday: "narrow", timeZone: "UTC" }).format(new Date(`${day}T00:00:00Z`)) };
   });
 
+  const weakest = stats
+    .filter((s) => s.solved > 0 && s.state !== "done")
+    .sort((a, b) => a.mastery - b.mastery)
+    .slice(0, 3);
+  const nextBadge = badges.filter((b) => !b.unlocked).sort((a, b) => b.progress - a.progress)[0];
+  const problemById = new Map(ctx.problems.map((p) => [p.id, p]));
+  const recent = [...progress]
+    .sort((a, b) => b.solved_at.localeCompare(a.solved_at))
+    .slice(0, 5)
+    .map((r) => ({ row: r, problem: problemById.get(r.problem_id) }))
+    .filter((r): r is { row: typeof r.row; problem: NonNullable<typeof r.problem> } => Boolean(r.problem));
   const daysLeft = profile.target_date ? daysUntil(profile.target_date, new Date(), tz) : null;
   const name = (profile.display_name ?? "there").split(" ")[0];
   const goalDone = solvedToday >= goal;
@@ -76,6 +87,7 @@ export default async function TodayPage() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-6">
           <section className="card card-hero relative overflow-hidden p-6 sm:p-8" aria-labelledby="hero-title">
+            <div aria-hidden className="pointer-events-none absolute -bottom-20 -right-10 size-80 rounded-full opacity-70 blur-3xl" style={{ background: "radial-gradient(closest-side, rgba(255,138,61,.35), transparent)" }} />
             <WheelArt className="pointer-events-none absolute -bottom-24 -right-24 size-64 opacity-50 sm:-right-16 sm:size-96 sm:opacity-100" />
             <p className="relative text-sm font-medium text-ember">{hero.label}</p>
             <h2 id="hero-title" className="font-display relative mt-2 max-w-md text-3xl font-semibold leading-tight sm:text-4xl">
@@ -208,6 +220,50 @@ export default async function TodayPage() {
               {profile.xp} XP · {level.toNext} to the next edge
             </p>
           </section>
+
+          {nextBadge && (
+            <section className="card flex items-center gap-4 p-5" aria-label="Next badge">
+              <Emblem id={nextBadge.id} unlocked={false} size={56} />
+              <div className="min-w-0 flex-1">
+                <p className="text-sm text-muted">Next badge</p>
+                <p className="font-display text-lg font-semibold leading-tight">{nextBadge.title}</p>
+                <p className="mb-2 text-xs text-muted">{nextBadge.hint}</p>
+                <Bar heat value={nextBadge.progress} label={`${nextBadge.title} progress`} />
+              </div>
+            </section>
+          )}
+
+          {weakest.length > 0 && (
+            <section className="card p-5" aria-label="Weakest topics">
+              <h2 className="font-display mb-3 text-lg font-semibold">{rec.kind === "weak" ? "Needs work" : "How well it sticks"}</h2>
+              <ul className="space-y-3.5">
+                {weakest.map((s) => (
+                  <li key={s.topic.id}>
+                    <div className="mb-1.5 flex justify-between text-sm">
+                      <span>{s.topic.title}</span>
+                      <span className="num text-sm text-muted">{Math.round(s.mastery * 100)}%</span>
+                    </div>
+                    <Bar heat value={s.mastery} label={`${s.topic.title} mastery`} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {recent.length > 0 && (
+            <section className="card p-5" aria-label="Recently solved">
+              <h2 className="font-display mb-2 text-lg font-semibold">Recently solved</h2>
+              <ul className="divide-y divide-line">
+                {recent.map(({ row, problem }) => (
+                  <li key={problem.id} className="flex items-center gap-3 py-2.5">
+                    <span className="size-1.5 shrink-0 rounded-full" style={{ background: DIFF_COLOR[problem.difficulty] }} />
+                    <span className="min-w-0 flex-1 truncate text-sm">{problem.title}</span>
+                    <span className="num shrink-0 text-xs text-muted">{new Intl.DateTimeFormat("en", { day: "numeric", month: "short", timeZone: tz }).format(new Date(row.solved_at))}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </aside>
       </div>
     </div>

@@ -35,7 +35,11 @@ export default async function ProfilePage() {
     if (solvedIds.has(p.id)) diff[p.difficulty].solved += 1;
   }
 
-  const { cols, months } = heatmapWeeks(perDay, 20, new Date(), tz);
+  const { cols, months } = heatmapWeeks(perDay, 30, new Date(), tz);
+  const counts = cols.flat().filter((c) => !c.future).map((c) => c.count);
+  const activeDays = counts.filter((n) => n > 0).length;
+  const bestDay = Math.max(0, ...counts);
+  const thisWeek = counts.slice(-7).reduce((n, c) => n + c, 0);
   const hasHandles = Boolean(profile.leetcode_handle || profile.codeforces_handle || profile.github_handle);
   const lastSync = [...platform.values()].map((s) => s.fetched_at).sort().at(-1);
   const reviews = progress.reduce((n, p) => n + p.review_count, 0);
@@ -81,11 +85,25 @@ export default async function ProfilePage() {
         <h2 id="activity-title" className="font-display mb-4 text-xl font-semibold">
           Activity
         </h2>
-        <Heatmap cols={cols} months={months} />
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_14rem]">
+          <Heatmap cols={cols} months={months} />
+          <dl className="grid grid-cols-3 content-start gap-4 border-t border-line pt-5 lg:grid-cols-1 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
+            {[
+              ["Active days", activeDays],
+              ["Best day", bestDay],
+              ["This week", thisWeek],
+            ].map(([label, value]) => (
+              <div key={label as string}>
+                <dd className="num font-display text-3xl font-semibold text-ember">{value}</dd>
+                <dt className="text-sm text-muted">{label}</dt>
+              </div>
+            ))}
+          </dl>
+        </div>
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="card self-start p-5" aria-labelledby="diff-title">
+        <section className="card flex flex-col p-5" aria-labelledby="diff-title">
           <h2 id="diff-title" className="font-display mb-4 text-xl font-semibold">
             By difficulty
           </h2>
@@ -100,6 +118,18 @@ export default async function ProfilePage() {
               </div>
             ))}
           </div>
+          <dl className="mt-auto grid grid-cols-3 gap-3 border-t border-line pt-5 text-center">
+            {[
+              ["Notes written", progress.filter((p) => p.notes).length],
+              ["Best streak", streak.best],
+              ["Roadmap done", `${Math.round((solvedIds.size / Math.max(1, problems.length)) * 100)}%`],
+            ].map(([label, value]) => (
+              <div key={label as string}>
+                <dd className="num font-display text-2xl font-semibold">{value}</dd>
+                <dt className="text-sm text-muted">{label}</dt>
+              </div>
+            ))}
+          </dl>
         </section>
 
         <section className="card p-5" aria-labelledby="mastery-title">

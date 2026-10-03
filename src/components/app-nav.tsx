@@ -39,7 +39,7 @@ export function AppNav({
   return (
     <>
       <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-5">
+        <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-5">
           <Link href="/today" className="flex min-h-11 items-center gap-2" aria-label="Grindstone, today">
             <Mark />
             <span className="font-display text-xl font-semibold">Grindstone</span>

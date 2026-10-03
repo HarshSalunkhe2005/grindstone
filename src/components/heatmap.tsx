@@ -48,7 +48,7 @@ export function Heatmap({ cols, months }: { cols: HeatCell[][]; months: { label:
               <div
                 key={cell.day}
                 title={cell.future ? undefined : `${cell.count} solved on ${cell.day}`}
-                className="aspect-square rounded-[4px]"
+                className="h-[22px] rounded-[5px]"
                 style={{
                   gridColumn: c + 2,
                   gridRow: d + 2,

@@ -16,7 +16,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         levelProgress={ctx.level.progress}
         dueCount={ctx.dueToday.length}
       />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-5 pb-28 pt-8 sm:pb-12">{children}</main>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-5 pb-28 pt-8 sm:pb-12">{children}</main>
       <SparkLayer />
       <ToastHost />
     </>
