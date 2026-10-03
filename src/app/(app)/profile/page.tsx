@@ -4,6 +4,7 @@ import { Heatmap } from "@/components/heatmap";
 import { SyncButton } from "@/components/sync-button";
 import { Bar, DIFF_COLOR, DIFF_TEXT, Icon, Ring } from "@/components/ui";
 import { loadUserContext } from "@/lib/data";
+import { createClient } from "@/lib/supabase/server";
 import { heatmapWeeks } from "@/lib/game";
 import type { CodeforcesStats, GithubStats, LeetCodeStats } from "@/lib/platforms";
 
@@ -12,9 +13,17 @@ export const metadata: Metadata = { title: "Profile" };
 const DIFFS = ["easy", "medium", "hard"] as const;
 
 export default async function ProfilePage() {
-  const { supabase, userId, profile, tz, problems, solvedIds, perDay, streak, level, stats, badges, progress } = await loadUserContext();
+  // The platform-stats query runs alongside the main load instead of after it.
+  const statsRequest = (async () => {
+    const supabase = await createClient();
+    const { data: claims } = await supabase.auth.getClaims();
+    return supabase.from("platform_stats").select("platform, data, fetched_at").eq("user_id", claims?.claims?.sub ?? "");
+  })();
+  const [{ profile, tz, problems, solvedIds, perDay, streak, level, stats, badges, progress }, { data: statRows }] = await Promise.all([
+    loadUserContext(),
+    statsRequest,
+  ]);
 
-  const { data: statRows } = await supabase.from("platform_stats").select("platform, data, fetched_at").eq("user_id", userId);
   const platform = new Map((statRows ?? []).map((r) => [r.platform, r]));
   const lc = platform.get("leetcode")?.data as LeetCodeStats | undefined;
   const cf = platform.get("codeforces")?.data as CodeforcesStats | undefined;

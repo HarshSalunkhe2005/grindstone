@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon, DIFF_TEXT } from "@/components/ui";
 import { sparksFromElement } from "@/components/spark-layer";
 import { toast } from "@/components/toast";
 import type { Difficulty } from "@/lib/insights";
+import { softRefresh } from "@/lib/refresh";
 import { scheduleReview, type Rating } from "@/lib/review";
 
 export interface DueItem {
@@ -41,7 +42,6 @@ export function ReviewQueue({ items, total }: { items: DueItem[]; total: number 
   const router = useRouter();
   const [gone, setGone] = useState<Set<number>>(new Set());
   const [busy, setBusy] = useState<number | null>(null);
-  const [, startTransition] = useTransition();
 
   async function rate(item: DueItem, rating: Rating, button: HTMLElement) {
     setBusy(item.problemId);
@@ -59,7 +59,7 @@ export function ReviewQueue({ items, total }: { items: DueItem[]; total: number 
         rating === "again" ? "info" : "win",
       );
       setGone((g) => new Set(g).add(item.problemId));
-      startTransition(() => router.refresh());
+      softRefresh(router);
     } catch (e) {
       toast(e instanceof Error ? e.message : "Could not save the review", "error");
     }

@@ -241,9 +241,21 @@ function start(THREE: Three, host: HTMLElement, reduced: boolean): () => void {
   let raf = 0;
   let visible = true;
   let last = performance.now();
+  // Adaptive quality: if the first second of frames is slow, drop to 1x resolution.
+  let frames = 0;
+  let elapsed = 0;
   const loop = (now: number) => {
-    const dt = Math.min(0.033, (now - last) / 1000);
+    const rawDt = (now - last) / 1000;
+    const dt = Math.min(0.033, rawDt);
     last = now;
+    if (frames < 60) {
+      frames += 1;
+      elapsed += rawDt;
+      if (frames === 60 && elapsed / 60 > 0.034 && renderer.getPixelRatio() > 1) {
+        renderer.setPixelRatio(1);
+        resize();
+      }
+    }
     px += (tx - px) * Math.min(1, dt * 4);
     py += (ty - py) * Math.min(1, dt * 4);
     step(dt);

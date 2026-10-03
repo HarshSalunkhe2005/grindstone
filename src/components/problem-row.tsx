@@ -1,11 +1,12 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon, DIFF_TEXT } from "@/components/ui";
 import { sparksFromElement } from "@/components/spark-layer";
 import { toast } from "@/components/toast";
 import { levelFor } from "@/lib/game";
+import { softRefresh } from "@/lib/refresh";
 import type { Difficulty } from "@/lib/insights";
 
 const XP: Record<Difficulty, number> = { easy: 10, medium: 20, hard: 40 };
@@ -45,7 +46,6 @@ export function ProblemRow({
   const [savedNotes, setSavedNotes] = useState(initialNotes ?? "");
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [, startTransition] = useTransition();
 
   async function toggle() {
     const next = !solved;
@@ -62,7 +62,7 @@ export function ProblemRow({
         setConfidence(null);
         setOpen(false);
       }
-      startTransition(() => router.refresh());
+      softRefresh(router);
     } catch (e) {
       setSolved(!next);
       toast(e instanceof Error ? e.message : "Could not save", "error");
@@ -74,7 +74,7 @@ export function ProblemRow({
     setConfidence(value);
     try {
       await call("/api/v1/notes", "PATCH", { problemId: id, confidence: value });
-      startTransition(() => router.refresh());
+      softRefresh(router);
     } catch (e) {
       setConfidence(prev);
       toast(e instanceof Error ? e.message : "Could not save", "error");
