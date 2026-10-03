@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { GrindWheel } from "@/components/grind-wheel";
 import { SkillTree, type TreeTopic } from "@/components/skill-tree";
-import { Bar, Icon, Mark, Ring } from "@/components/ui";
+import { Bar, Emblem, Icon, Mark, Ring, WheelArt } from "@/components/ui";
 
 const SAMPLE: [string, number, number, TreeTopic["state"]][] = [
   ["Arrays & Hashing", 8, 8, "done"],
@@ -66,7 +66,7 @@ export default function Home() {
 
       <main className="flex-1">
         {/* Hero: the wheel is the signature moment */}
-        <section className="mx-auto grid w-full max-w-6xl items-center gap-4 px-5 pb-10 pt-4 lg:grid-cols-[1.05fr_1fr] lg:pb-20 lg:pt-10">
+        <section className="relative mx-auto grid w-full max-w-6xl items-center gap-4 px-5 pb-10 pt-4 lg:grid-cols-[0.9fr_1.1fr] lg:pb-24 lg:pt-8">
           <div className="order-2 lg:order-1">
             <h1 className="font-display text-[clamp(2.9rem,7.5vw,5.6rem)] font-semibold leading-[0.98] text-balance">
               Sharpen your edge.
@@ -75,23 +75,23 @@ export default function Home() {
               A DSA roadmap that adapts to you: a plan for today, revision before you forget, and a shower of sparks for every problem you solve.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link href="/login" className="btn btn-arc !min-h-14 !px-7 !text-base">
+              <Link href="/login" className="btn btn-ember !min-h-14 !px-7 !text-base">
                 Start grinding <Icon name="arrow" size={18} />
               </Link>
               <a href="#how" className="btn btn-quiet !min-h-14 !px-6 !text-base">
                 See how it works
               </a>
             </div>
-            <p className="mt-5 text-sm text-faint">Free. 143 hand-picked problems across 18 topics, in an order that makes each one easier.</p>
+            <p className="mt-5 text-sm text-muted">Free. 143 hand-picked problems across 18 topics, in an order that makes each one easier.</p>
           </div>
 
-          <div className="relative order-1 lg:order-2">
+          <div className="relative order-1 -mx-5 lg:order-2 lg:-mr-[max(1.25rem,calc((100vw-72rem)/2))] lg:ml-0">
             <div
               aria-hidden
-              className="absolute inset-0 -z-10 rounded-full opacity-70 blur-3xl"
-              style={{ background: "radial-gradient(closest-side, rgba(92,200,255,.16), transparent 70%)" }}
+              className="absolute inset-0 -z-10 opacity-80 blur-3xl"
+              style={{ background: "radial-gradient(closest-side at 62% 62%, rgba(255,138,61,.22), rgba(92,200,255,.08) 55%, transparent 75%)" }}
             />
-            <GrindWheel className="aspect-[5/4] w-full" />
+            <GrindWheel className="aspect-square w-full lg:aspect-[6/5] lg:min-h-[34rem]" />
           </div>
         </section>
 
@@ -107,21 +107,21 @@ export default function Home() {
           <div className="card mt-10 overflow-hidden" aria-label="Preview of the Today screen">
             <div className="flex items-center gap-1 border-b border-line px-4 py-3 text-sm">
               {["Today", "Roadmap", "Profile"].map((t, i) => (
-                <span key={t} className={`rounded-lg px-3 py-1.5 ${i === 0 ? "bg-panel-2 font-medium text-text" : "text-faint"}`}>
+                <span key={t} className={`rounded-lg px-3 py-1.5 ${i === 0 ? "bg-panel-2 font-medium text-text" : "text-muted"}`}>
                   {t}
                 </span>
               ))}
-              <span className="num ml-auto flex items-center gap-1.5 text-faint">
+              <span className="num ml-auto flex items-center gap-1.5 text-muted">
                 <Icon name="flame" size={16} className="text-ember" /> 12
               </span>
             </div>
             <div className="grid gap-5 p-5 sm:p-7 lg:grid-cols-[1fr_17rem]">
               <div className="space-y-4">
-                <div className="rounded-2xl border border-line bg-panel-2 p-6">
-                  <p className="chip !border-arc/40 !text-arc w-fit">Revision due</p>
-                  <p className="font-display mt-3 text-3xl font-semibold">4 problems to revise</p>
-                  <p className="mt-2 max-w-md text-sm text-muted">Recall beats new content. Rate each one honestly and the schedule adapts.</p>
-                  <span className="btn btn-arc mt-5 !cursor-default">
+                <div className="card card-hero relative overflow-hidden p-6">
+                  <WheelArt className="pointer-events-none absolute -bottom-24 -right-20 size-64 opacity-80" />
+                  <p className="font-display relative text-3xl font-semibold">4 problems to revise</p>
+                  <p className="relative mt-2 max-w-sm text-sm text-muted">Recall beats new content. Rate each one honestly and the schedule adapts.</p>
+                  <span className="btn btn-ember relative mt-5 !cursor-default">
                     Start revising <Icon name="arrow" size={16} />
                   </span>
                 </div>
@@ -135,7 +135,7 @@ export default function Home() {
                       <span className="size-5 rounded-md border border-line-strong" />
                       <span className="flex-1 text-sm font-medium">
                         {t}
-                        <span className="block text-xs font-normal text-faint">{topic}</span>
+                        <span className="block text-xs font-normal text-muted">{topic}</span>
                       </span>
                       <span className={`text-xs font-medium ${c}`}>{d}</span>
                     </li>
@@ -155,12 +155,12 @@ export default function Home() {
                 <div className="rounded-2xl border border-line bg-panel-2 p-4">
                   <div className="flex items-baseline justify-between">
                     <p className="font-display font-semibold">Razor</p>
-                    <span className="num text-xs text-faint">Lv 5</span>
+                    <span className="num text-xs text-muted">Lv 5</span>
                   </div>
                   <div className="mt-3">
-                    <Bar value={0.74} label="Level progress" />
+                    <Bar heat value={0.74} label="Level progress" />
                   </div>
-                  <p className="num mt-2 text-xs text-faint">940 XP · 60 to the next edge</p>
+                  <p className="num mt-2 text-xs text-muted">940 XP · 60 to the next edge</p>
                 </div>
               </div>
             </div>
@@ -174,25 +174,23 @@ export default function Home() {
             <p className="mt-4 max-w-lg text-lg leading-8 text-muted">
               Most people forget a problem within weeks because they never see it again. Every problem you solve comes back on a ladder: tomorrow, then three days, a week, three weeks. Forget one, and it starts over.
             </p>
-            <p className="mt-4 max-w-lg text-sm text-faint">Rate each revision honestly. Two minutes each, never more than eight a day.</p>
+            <p className="mt-4 max-w-lg text-sm text-muted">Rate each revision honestly. Two minutes each, never more than eight a day.</p>
           </div>
           <ol className="card relative space-y-0 p-6" aria-label="Revision schedule">
             {RUNGS.map((r, i) => (
               <li key={r.day} className="relative flex items-center gap-4 py-3.5">
                 {i < RUNGS.length - 1 && <span aria-hidden className="absolute left-[19px] top-[3.1rem] h-6 w-px bg-line-strong" />}
-                <span className="num grid size-10 shrink-0 place-items-center rounded-xl border border-arc/50 bg-arc-soft text-sm font-semibold text-arc">{r.day}d</span>
+                <span className="num grid size-10 shrink-0 place-items-center rounded-xl border border-ember/50 bg-ember-soft text-sm font-semibold text-ember">{r.day}d</span>
                 <div className="flex-1">
                   <p className="font-medium">{r.label}</p>
                   <div className="mt-1.5">
-                    <Bar value={(i + 1) / RUNGS.length} label={`Rung ${i + 1} of 4`} />
+                    <Bar heat value={(i + 1) / RUNGS.length} label={`Rung ${i + 1} of 4`} />
                   </div>
                 </div>
               </li>
             ))}
             <li className="flex items-center gap-4 pt-3.5">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-arc text-arc-ink">
-                <Icon name="trophy" size={18} />
-              </span>
+              <Emblem id="hundred" unlocked size={40} />
               <p className="font-medium">Mastered. It stops bothering you.</p>
             </li>
           </ol>
@@ -213,15 +211,16 @@ export default function Home() {
 
         {/* Close */}
         <section className="mx-auto w-full max-w-6xl px-5 pb-24 pt-10">
-          <div className="card relative overflow-hidden p-8 text-center sm:p-14">
+          <div className="card card-hero relative overflow-hidden p-8 text-center sm:p-14">
+            <WheelArt className="pointer-events-none absolute -bottom-40 left-1/2 size-[30rem] -translate-x-1/2 opacity-40" sparks={false} />
             <div
               aria-hidden
               className="pointer-events-none absolute inset-x-0 -top-24 mx-auto h-56 w-2/3 rounded-full opacity-60 blur-3xl"
-              style={{ background: "radial-gradient(closest-side, rgba(92,200,255,.22), transparent)" }}
+              style={{ background: "radial-gradient(closest-side, rgba(255,138,61,.24), transparent)" }}
             />
             <h2 className="font-display relative text-4xl font-semibold sm:text-6xl">Light the wheel.</h2>
             <p className="relative mx-auto mt-4 max-w-md text-lg text-muted">Your first problem is two minutes away.</p>
-            <Link href="/login" className="btn btn-arc relative mt-8 !min-h-14 !px-8 !text-base">
+            <Link href="/login" className="btn btn-ember relative mt-8 !min-h-14 !px-8 !text-base">
               Start grinding <Icon name="arrow" size={18} />
             </Link>
           </div>
@@ -229,7 +228,7 @@ export default function Home() {
       </main>
 
       <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-5 py-6 text-sm text-faint">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-5 py-6 text-sm text-muted">
           <span className="flex items-center gap-2">
             <Mark size={20} /> Grindstone
           </span>

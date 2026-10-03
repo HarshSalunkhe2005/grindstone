@@ -1,11 +1,13 @@
 @import "tailwindcss";
 
 /*
- * Direction "Cold Steel, Arc Sparks": a dim workshop where a grinding wheel
- * throws sparks every time you solve something. Steel-graphite surfaces with a
- * faint cool sheen, hairline borders, and one accent: arc blue. Warm amber
- * appears only inside spark particles. Green / amber / rose carry difficulty
- * and nothing else. Dark only, every colour painted explicitly.
+ * Direction "Cold Steel, Arc Sparks, Ember Heat": a dim workshop where a
+ * grinding wheel throws sparks every time you solve something. Surfaces are
+ * brushed steel (fine grain, a bevelled top edge, a specular glint that sweeps
+ * on hover). Arc blue is the working colour. Ember is the heat of the grind:
+ * it appears in the streak, the XP tip, level-ups, the hero's rim light and
+ * the sparks themselves. Green / amber / rose carry difficulty and nothing
+ * else. Dark only, every colour painted explicitly.
  */
 :root {
   color-scheme: dark;
@@ -16,17 +18,22 @@
   --line: #222936;
   --line-strong: #323c4e;
   --text: #e8edf4;
-  --muted: #98a2b3;
-  --faint: #7f899b;
+  --muted: #a3adbf;
+  --faint: #8993a6;
   --arc: #5cc8ff;
   --arc-deep: #1d7fb3;
   --arc-ink: #03121c;
   --arc-soft: rgba(92, 200, 255, 0.12);
-  --ember: #ffb15c;
+  --ember: #ff8a3d;
+  --ember-deep: #c4501a;
+  --ember-hot: #ffd9a8;
+  --ember-soft: rgba(255, 138, 61, 0.14);
   --easy: #52e0b0;
   --medium: #ffc65c;
   --hard: #ff6f7d;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Fine steel grain, tiled. Kept faint: it should be felt, not seen. */
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
 @theme inline {
@@ -44,6 +51,9 @@
   --color-arc-ink: var(--arc-ink);
   --color-arc-soft: var(--arc-soft);
   --color-ember: var(--ember);
+  --color-ember-deep: var(--ember-deep);
+  --color-ember-hot: var(--ember-hot);
+  --color-ember-soft: var(--ember-soft);
   --color-easy: var(--easy);
   --color-medium: var(--medium);
   --color-hard: var(--hard);
@@ -63,6 +73,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  caret-color: var(--arc);
 }
 
 ::selection {
@@ -96,119 +107,205 @@ button:disabled {
 
 /* Component classes live in the components layer so utility classes can override them. */
 @layer components {
-/* ---------- Surfaces ---------- */
+  /* ---------- Surfaces: brushed steel ---------- */
 
-.card {
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
-}
+  /* A panel: grain, a faint diagonal sheen, a bevelled top edge, a soft drop shadow. */
+  .card {
+    position: relative;
+    background-color: var(--panel);
+    background-image: linear-gradient(155deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0) 38%), var(--grain);
+    background-size: auto, 180px 180px;
+    background-blend-mode: normal, soft-light;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.06),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+      0 14px 30px -18px rgba(0, 0, 0, 0.8);
+  }
 
-.card-lift {
-  transition: border-color 180ms var(--ease), transform 180ms var(--ease);
-}
-.card-lift:hover {
-  border-color: var(--line-strong);
-}
+  /* A raised, hero-grade surface: warm rim light from the wheel at one corner. */
+  .card-hero {
+    background-image: radial-gradient(120% 90% at 0% 100%, rgba(255, 138, 61, 0.14), transparent 55%),
+      linear-gradient(155deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 40%), var(--grain);
+    background-size: auto, auto, 180px 180px;
+    background-blend-mode: normal, normal, soft-light;
+    border-color: color-mix(in srgb, var(--ember) 22%, var(--line-strong));
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.09),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+      0 24px 50px -24px rgba(255, 138, 61, 0.28),
+      0 18px 36px -20px rgba(0, 0, 0, 0.9);
+  }
 
-/* ---------- Controls: tactile, they press down ---------- */
+  /* A sunken well for lists and inner groups. */
+  .well {
+    background: color-mix(in srgb, var(--bg) 72%, var(--panel));
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.45);
+  }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 2.75rem;
-  padding: 0 1.1rem;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 650;
-  line-height: 1;
-  white-space: nowrap;
-  transition: transform 120ms var(--ease), box-shadow 120ms var(--ease), background-color 160ms var(--ease),
-    border-color 160ms var(--ease);
-}
-.btn:disabled {
-  opacity: 0.5;
-}
-.btn-arc {
-  background: var(--arc);
-  color: var(--arc-ink);
-  box-shadow: 0 3px 0 var(--arc-deep), 0 8px 22px -8px rgba(92, 200, 255, 0.55);
-}
-.btn-arc:hover:not(:disabled) {
-  background: #7ad3ff;
-}
-.btn-arc:active:not(:disabled) {
-  transform: translateY(3px);
-  box-shadow: 0 0 0 var(--arc-deep), 0 4px 14px -8px rgba(92, 200, 255, 0.55);
-}
-.btn-quiet {
-  background: var(--panel-2);
-  border: 1px solid var(--line-strong);
-  color: var(--text);
-  box-shadow: 0 2px 0 var(--line);
-}
-.btn-quiet:hover:not(:disabled) {
-  background: var(--panel-3);
-  border-color: var(--faint);
-}
-.btn-quiet:active:not(:disabled) {
-  transform: translateY(2px);
-  box-shadow: 0 0 0 var(--line);
-}
-.btn-sm {
-  min-height: 2.25rem;
-  padding: 0 0.85rem;
-  font-size: 0.8125rem;
-  border-radius: 10px;
-}
+  /* Specular glint: a bright band sweeps across the surface on hover. */
+  .glint {
+    position: relative;
+    overflow: hidden;
+  }
+  .glint::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.08) 50%, transparent 62%);
+    background-size: 260% 100%;
+    background-position: 150% 0;
+    pointer-events: none;
+    transition: background-position 900ms var(--ease);
+  }
+  .glint:hover::after {
+    background-position: -50% 0;
+  }
 
-.input {
-  width: 100%;
-  min-height: 2.75rem;
-  padding: 0 0.85rem;
-  border: 1px solid var(--line-strong);
-  border-radius: 12px;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 0.95rem;
-  transition: border-color 160ms var(--ease), box-shadow 160ms var(--ease);
-}
-.input::placeholder {
-  color: var(--faint);
-}
-.input:hover {
-  border-color: var(--faint);
-}
-.input:focus {
-  outline: none;
-  border-color: var(--arc);
-  box-shadow: 0 0 0 3px var(--arc-soft);
-}
+  .card-lift {
+    transition: border-color 180ms var(--ease), transform 180ms var(--ease);
+  }
+  .card-lift:hover {
+    border-color: var(--line-strong);
+  }
 
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: 2rem;
-  padding: 0 0.75rem;
-  border-radius: 999px;
-  border: 1px solid var(--line-strong);
-  font-size: 0.8rem;
-  color: var(--muted);
-  transition: background-color 140ms var(--ease), color 140ms var(--ease), border-color 140ms var(--ease);
-}
-.chip:hover {
-  color: var(--text);
-  border-color: var(--faint);
-}
-.chip[aria-pressed="true"] {
-  background: var(--arc-soft);
-  border-color: color-mix(in srgb, var(--arc) 55%, var(--line));
-  color: var(--arc);
-}
+  /* ---------- Controls: tactile, they press down ---------- */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0 1.15rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 650;
+    line-height: 1;
+    white-space: nowrap;
+    transition: transform 120ms var(--ease), box-shadow 120ms var(--ease), background-color 160ms var(--ease),
+      border-color 160ms var(--ease);
+  }
+  .btn:disabled {
+    opacity: 0.5;
+  }
+  /* Depth from light, not from a hard lip: a lit top edge, a shaded base, a soft shadow. */
+  .btn-arc {
+    background: linear-gradient(180deg, #7ad3ff, var(--arc) 55%, #46b6ee);
+    color: var(--arc-ink);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.55),
+      inset 0 -2px 0 rgba(0, 60, 100, 0.35),
+      0 10px 22px -8px rgba(92, 200, 255, 0.55),
+      0 2px 4px rgba(0, 0, 0, 0.4);
+  }
+  .btn-arc:hover:not(:disabled) {
+    background: linear-gradient(180deg, #92dcff, #6ccbff 55%, #52bdf2);
+  }
+  .btn-arc:active:not(:disabled) {
+    transform: translateY(1px) scale(0.99);
+    box-shadow:
+      inset 0 1px 3px rgba(0, 40, 70, 0.45),
+      0 4px 10px -6px rgba(92, 200, 255, 0.5);
+  }
+  .btn-ember {
+    background: linear-gradient(180deg, #ffa563, var(--ember) 55%, #f0742a);
+    color: #2a1105;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -2px 0 rgba(120, 40, 0, 0.35),
+      0 10px 22px -8px rgba(255, 138, 61, 0.55),
+      0 2px 4px rgba(0, 0, 0, 0.4);
+  }
+  .btn-ember:active:not(:disabled) {
+    transform: translateY(1px) scale(0.99);
+  }
+  .btn-quiet {
+    background: linear-gradient(180deg, var(--panel-3), var(--panel-2));
+    border: 1px solid var(--line-strong);
+    color: var(--text);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 2px 4px rgba(0, 0, 0, 0.35);
+  }
+  .btn-quiet:hover:not(:disabled) {
+    border-color: var(--faint);
+    background: linear-gradient(180deg, #232938, var(--panel-3));
+  }
+  .btn-quiet:active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  }
+  .btn-sm {
+    min-height: 2.5rem;
+    padding: 0 0.9rem;
+    font-size: 0.8125rem;
+    border-radius: 10px;
+  }
+
+  .input {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0 0.85rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--bg) 80%, var(--panel));
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.4);
+    color: var(--text);
+    font-size: 0.95rem;
+    transition: border-color 160ms var(--ease), box-shadow 160ms var(--ease);
+  }
+  .input::placeholder {
+    color: var(--faint);
+  }
+  .input:hover {
+    border-color: var(--faint);
+  }
+  .input:focus {
+    outline: none;
+    border-color: var(--arc);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.4), 0 0 0 3px var(--arc-soft);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.25rem;
+    padding: 0 0.85rem;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    font-size: 0.8125rem;
+    color: var(--muted);
+    transition: background-color 140ms var(--ease), color 140ms var(--ease), border-color 140ms var(--ease);
+  }
+  .chip:hover {
+    color: var(--text);
+    border-color: var(--faint);
+  }
+  .chip[aria-pressed="true"] {
+    background: var(--arc-soft);
+    border-color: color-mix(in srgb, var(--arc) 55%, var(--line));
+    color: var(--arc);
+  }
+
+  /* A keyboard key, for shortcut hints. */
+  .kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.35rem;
+    border-radius: 6px;
+    border: 1px solid var(--line-strong);
+    border-bottom-width: 2px;
+    background: var(--panel-3);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
 }
 
 /* ---------- Motion ---------- */
@@ -238,13 +335,44 @@ button:disabled {
   animation: pop 320ms var(--ease);
 }
 
-@keyframes edge-glint {
+/* A card sliding in from the right: used by the revision ritual. */
+@keyframes slide-in {
   from {
-    background-position: -150% 0;
+    opacity: 0;
+    transform: translateX(28px) scale(0.98);
   }
+}
+.slide-in {
+  animation: slide-in 380ms var(--ease) both;
+}
+
+/* The wheel in illustrations turns slowly. */
+@keyframes spin-slow {
   to {
-    background-position: 250% 0;
+    transform: rotate(360deg);
   }
+}
+.spin-slow {
+  animation: spin-slow 28s linear infinite;
+  transform-origin: center;
+}
+
+/* Embers drifting up from the hero. */
+@keyframes drift {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-120px) scale(0.4);
+    opacity: 0;
+  }
+}
+.ember-dot {
+  animation: drift 4.5s ease-out infinite;
 }
 
 .skeleton {
@@ -259,6 +387,12 @@ button:disabled {
   }
 }
 
+/* Keyboard focus for SVG skill-tree nodes (their default outline is removed). */
+g[role="button"]:focus-visible > rect:first-of-type {
+  stroke: var(--arc);
+  stroke-width: 3;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -267,10 +401,4 @@ button:disabled {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-}
-
-/* Keyboard focus for SVG skill-tree nodes (their default outline is removed). */
-g[role="button"]:focus-visible > rect:first-of-type {
-  stroke: var(--arc);
-  stroke-width: 3;
 }

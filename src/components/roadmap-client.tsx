@@ -83,8 +83,8 @@ export function RoadmapClient({
               type="button"
               aria-pressed={view === v}
               onClick={() => setView(v)}
-              className={`flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                view === v ? "bg-panel-3 text-text" : "text-faint hover:text-text"
+              className={`flex min-h-10 items-center gap-2 rounded-lg px-3.5 text-sm font-medium transition-colors ${
+                view === v ? "bg-panel-3 text-text" : "text-muted hover:text-text"
               }`}
             >
               <Icon name={v === "tree" ? "tree" : "list"} size={15} />
@@ -117,7 +117,7 @@ export function RoadmapClient({
         {filtering && (
           <button
             type="button"
-            className="text-xs text-faint underline underline-offset-2 hover:text-text"
+            className="min-h-11 px-2 text-sm text-muted underline underline-offset-2 hover:text-text"
             onClick={() => {
               setQuery("");
               setDiffs(new Set());
@@ -134,7 +134,7 @@ export function RoadmapClient({
         <>
           <SkillTree topics={topics} edges={edges} selectedId={selected} focusId={focusId} onSelect={setSelected} />
           {current && (
-            <section className="card rise p-5" aria-labelledby="topic-title" key={current.id}>
+            <section className="card card-hero rise p-5 sm:p-6" aria-labelledby="topic-title" key={current.id}>
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="max-w-xl">
                   <h2 id="topic-title" className="font-display text-2xl font-semibold">
@@ -142,20 +142,20 @@ export function RoadmapClient({
                   </h2>
                   {current.blurb && <p className="mt-1 text-sm text-muted">{current.blurb}</p>}
                   {current.prereqs.length > 0 && (
-                    <p className="mt-2 text-xs text-faint">
+                    <p className="mt-2 text-sm text-muted">
                       Builds on: {current.prereqs.map((id) => topics.find((t) => t.id === id)?.title).filter(Boolean).join(", ")}
                     </p>
                   )}
                 </div>
                 <div className="w-48">
                   <div className="mb-1.5 flex justify-between text-xs text-faint">
-                    <span>Solved</span>
+                    <span>Mastery heat</span>
                     <span className="num">
-                      {current.solved}/{current.total}
+                      {current.solved}/{current.total} solved
                     </span>
                   </div>
-                  <Bar value={current.solved / Math.max(1, current.total)} label={`${current.title} progress`} />
-                  <p className="num mt-2 text-xs text-faint">
+                  <Bar heat value={current.mastery} label={`${current.title} mastery`} />
+                  <p className="num mt-2 text-xs text-muted">
                     mastery {Math.round(current.mastery * 100)}%{current.due > 0 ? ` · ${current.due} to revise` : ""}
                   </p>
                 </div>
@@ -176,7 +176,7 @@ export function RoadmapClient({
             if (filtering && list.length === 0) return null;
             return (
               <details key={t.id} open={filtering || t.id === focusId} className="card group">
-                <summary className="flex cursor-pointer list-none items-center gap-4 p-4">
+                <summary className="flex min-h-14 cursor-pointer list-none items-center gap-4 p-4">
                   <div className="min-w-0 flex-1">
                     <p className="font-display text-lg font-semibold">{t.title}</p>
                     <p className="truncate text-xs text-faint">{t.blurb}</p>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { WheelArt } from "@/components/ui";
 import { loadUserContext } from "@/lib/data";
 import { SettingsForm } from "./settings-form";
 
@@ -8,9 +9,10 @@ export default async function SettingsPage() {
   const { profile } = await loadUserContext();
   return (
     <div className="max-w-3xl space-y-6">
-      <div>
-        <h1 className="font-display text-4xl font-semibold sm:text-5xl">Settings</h1>
-        <p className="mt-2 text-muted">Tune the plan to how you actually work.</p>
+      <div className="card card-hero relative overflow-hidden p-6 sm:p-8">
+        <WheelArt className="pointer-events-none absolute -bottom-20 -right-16 size-56 opacity-70" sparks={false} />
+        <h1 className="font-display relative text-4xl font-semibold sm:text-5xl">Settings</h1>
+        <p className="relative mt-2 text-muted">Tune the plan to how you actually work.</p>
       </div>
       <SettingsForm
         initial={{

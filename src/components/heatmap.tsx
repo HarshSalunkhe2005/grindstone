@@ -2,10 +2,10 @@ import type { HeatCell } from "@/lib/game";
 
 const LEVEL_BG = [
   "var(--panel-3)",
-  "color-mix(in srgb, var(--arc) 28%, var(--panel-3))",
-  "color-mix(in srgb, var(--arc) 52%, var(--panel-3))",
-  "color-mix(in srgb, var(--arc) 78%, var(--panel-3))",
-  "var(--arc)",
+  "color-mix(in srgb, var(--ember) 30%, var(--panel-3))",
+  "color-mix(in srgb, var(--ember) 55%, var(--panel-3))",
+  "color-mix(in srgb, var(--ember) 80%, var(--panel-3))",
+  "var(--ember-hot)",
 ];
 
 const DAYS = ["Mon", "", "Wed", "", "Fri", "", ""];
@@ -26,20 +26,20 @@ export function Heatmap({ cols, months }: { cols: HeatCell[][]; months: { label:
         <div
           className="grid gap-[3px]"
           style={{
-            gridTemplateColumns: `30px repeat(${weeks}, minmax(${MIN_CELL}px, 1fr))`,
+            gridTemplateColumns: `34px repeat(${weeks}, minmax(${MIN_CELL}px, 1fr))`,
             gridTemplateRows: `18px repeat(7, auto)`,
-            minWidth: 30 + weeks * (MIN_CELL + 3),
+            minWidth: 34 + weeks * (MIN_CELL + 3),
           }}
           role="img"
           aria-label={`${total} problems solved in the last ${weeks} weeks, on ${active} days`}
         >
           {months.map((m) => (
-            <span key={`${m.label}-${m.col}`} className="whitespace-nowrap text-[0.7rem] leading-[18px] text-faint" style={{ gridColumn: `${m.col + 2} / span 3`, gridRow: 1 }}>
+            <span key={`${m.label}-${m.col}`} className="whitespace-nowrap text-xs leading-[18px] text-faint" style={{ gridColumn: `${m.col + 2} / span 3`, gridRow: 1 }}>
               {m.label}
             </span>
           ))}
           {DAYS.map((d, i) => (
-            <span key={i} className="text-[0.65rem] leading-none text-faint" style={{ gridColumn: 1, gridRow: i + 2, alignSelf: "center" }}>
+            <span key={i} className="text-xs leading-none text-faint" style={{ gridColumn: 1, gridRow: i + 2, alignSelf: "center" }}>
               {d}
             </span>
           ))}
@@ -53,7 +53,7 @@ export function Heatmap({ cols, months }: { cols: HeatCell[][]; months: { label:
                   gridColumn: c + 2,
                   gridRow: d + 2,
                   background: cell.future ? "transparent" : LEVEL_BG[cell.level],
-                  outline: cell.today ? "1.5px solid var(--arc)" : undefined,
+                  outline: cell.today ? "1.5px solid var(--text)" : undefined,
                   outlineOffset: cell.today ? 1 : undefined,
                   border: cell.future ? "1px dashed var(--line)" : undefined,
                 }}
@@ -62,7 +62,7 @@ export function Heatmap({ cols, months }: { cols: HeatCell[][]; months: { label:
           )}
         </div>
       </div>
-      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-faint">
+      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted">
         <span className="num">
           {total} solved on {active} days
         </span>

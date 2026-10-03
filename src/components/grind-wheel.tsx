@@ -1,5 +1,6 @@
 "use client";
 
+import { WheelArt } from "@/components/ui";
 import { useEffect, useRef, useState } from "react";
 
 type Three = typeof import("three");
@@ -58,7 +59,7 @@ function start(THREE: Three, host: HTMLElement, reduced: boolean): () => void {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
   const canvas = renderer.domElement;
-  canvas.style.cssText = "width:100%;height:100%;display:block";
+  canvas.style.cssText = "position:relative;z-index:1;width:100%;height:100%;display:block";
   host.appendChild(canvas);
 
   const scene = new THREE.Scene();
@@ -71,10 +72,10 @@ function start(THREE: Three, host: HTMLElement, reduced: boolean): () => void {
   const key = new THREE.DirectionalLight(0xcfe8ff, 3.2);
   key.position.set(-3.5, 4, 5);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0x5cc8ff, 2.2);
+  const rim = new THREE.DirectionalLight(0xff9a55, 2.6);
   rim.position.set(4, 1, -3);
   scene.add(rim);
-  const glow = new THREE.PointLight(0xffb15c, 0, 5, 1.6);
+  const glow = new THREE.PointLight(0xff8a3d, 0, 5, 1.6);
   scene.add(glow);
 
   // The wheel: a stone cylinder on a steel hub, spinning about its own axis.
@@ -329,6 +330,7 @@ function FlatWheel() {
 export function GrindWheel({ className = "" }: { className?: string }) {
   const host = useRef<HTMLDivElement>(null);
   const [fallback, setFallback] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const el = host.current;
@@ -342,6 +344,8 @@ export function GrindWheel({ className = "" }: { className?: string }) {
         // ?still renders one pre-warmed frame, the same as reduced motion (handy for previews).
         const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches || new URLSearchParams(window.location.search).has("still");
         cleanup = start(THREE, el, reduced);
+        // Hold the poster one beat so the swap to the live scene is a dissolve, not a pop.
+        window.setTimeout(() => !disposed && setReady(true), 250);
       } catch {
         if (!disposed) setFallback(true);
       }
@@ -353,8 +357,11 @@ export function GrindWheel({ className = "" }: { className?: string }) {
   }, []);
 
   return (
-    <div ref={host} className={className} aria-hidden={!fallback}>
-      {fallback && <FlatWheel />}
+    <div ref={host} className={`relative ${className}`} aria-hidden={!fallback}>
+      {/* Poster: a drawn wheel that is on screen from the first paint until the 3D scene is ready. */}
+      <div className="pointer-events-none absolute inset-0 grid place-items-center transition-opacity duration-700" style={{ opacity: ready ? 0 : 1 }}>
+        {fallback ? <FlatWheel /> : <WheelArt className="size-[78%]" sparks />}
+      </div>
     </div>
   );
 }

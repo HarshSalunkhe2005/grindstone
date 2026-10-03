@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CountUp } from "@/components/count-up";
 import { Heatmap } from "@/components/heatmap";
 import { SyncButton } from "@/components/sync-button";
-import { Bar, DIFF_COLOR, DIFF_TEXT, Icon, Ring } from "@/components/ui";
+import { Bar, DIFF_COLOR, DIFF_TEXT, Emblem, Ring } from "@/components/ui";
 import { loadUserContext } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { heatmapWeeks } from "@/lib/game";
@@ -35,7 +35,7 @@ export default async function ProfilePage() {
     if (solvedIds.has(p.id)) diff[p.difficulty].solved += 1;
   }
 
-  const { cols, months } = heatmapWeeks(perDay, 36, new Date(), tz);
+  const { cols, months } = heatmapWeeks(perDay, 20, new Date(), tz);
   const hasHandles = Boolean(profile.leetcode_handle || profile.codeforces_handle || profile.github_handle);
   const lastSync = [...platform.values()].map((s) => s.fetched_at).sort().at(-1);
   const reviews = progress.reduce((n, p) => n + p.review_count, 0);
@@ -44,8 +44,8 @@ export default async function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <header className="card flex flex-wrap items-center gap-5 p-6">
-        <div className="grid size-16 shrink-0 place-items-center rounded-2xl border border-arc/40 bg-arc-soft font-display text-2xl font-semibold text-arc">
+      <header className="card card-hero flex flex-wrap items-center gap-5 p-6 sm:p-7">
+        <div className="grid size-16 shrink-0 place-items-center rounded-2xl border border-ember/50 bg-ember-soft font-display text-2xl font-semibold text-ember">
           {initials}
         </div>
         <div className="min-w-0 flex-1">
@@ -56,9 +56,9 @@ export default async function ProfilePage() {
               <span className="font-medium text-text">
                 Lv {level.level} · {level.title}
               </span>
-              <span className="num text-faint">{profile.xp} XP</span>
+              <span className="num text-muted">{profile.xp} XP</span>
             </div>
-            <Bar value={level.progress} label="Progress to next level" />
+            <Bar heat value={level.progress} label="Progress to next level" />
           </div>
         </div>
         <dl className="grid grid-cols-3 gap-6 text-center">
@@ -68,10 +68,10 @@ export default async function ProfilePage() {
             ["Revisions", reviews],
           ].map(([label, value]) => (
             <div key={label as string}>
-              <dd className="num font-display text-3xl font-semibold">
+              <dd className="num font-display text-4xl font-semibold">
                 <CountUp value={value as number} />
               </dd>
-              <dt className="text-xs text-faint">{label}</dt>
+              <dt className="text-sm text-muted">{label}</dt>
             </div>
           ))}
         </dl>
@@ -85,18 +85,18 @@ export default async function ProfilePage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="card p-5" aria-labelledby="diff-title">
+        <section className="card self-start p-5" aria-labelledby="diff-title">
           <h2 id="diff-title" className="font-display mb-4 text-xl font-semibold">
             By difficulty
           </h2>
           <div className="grid grid-cols-3 gap-3">
             {DIFFS.map((d) => (
               <div key={d} className="flex flex-col items-center gap-2">
-                <Ring value={diff[d].solved / Math.max(1, diff[d].total)} size={88} stroke={8} color={DIFF_COLOR[d]} label={`${diff[d].solved} of ${diff[d].total} ${d} solved`}>
+                <Ring value={diff[d].solved / Math.max(1, diff[d].total)} size={96} stroke={8} color={DIFF_COLOR[d]} label={`${diff[d].solved} of ${diff[d].total} ${d} solved`}>
                   <span className="num text-lg font-semibold">{diff[d].solved}</span>
                 </Ring>
-                <p className={`text-xs font-medium capitalize ${DIFF_TEXT[d]}`}>{d}</p>
-                <p className="num text-xs text-faint">of {diff[d].total}</p>
+                <p className={`text-sm font-medium capitalize ${DIFF_TEXT[d]}`}>{d}</p>
+                <p className="num text-sm text-muted">of {diff[d].total}</p>
               </div>
             ))}
           </div>
@@ -106,12 +106,13 @@ export default async function ProfilePage() {
           <h2 id="mastery-title" className="font-display mb-4 text-xl font-semibold">
             Topic mastery
           </h2>
-          <ul className="space-y-2.5">
-            {stats.map((s) => (
-              <li key={s.topic.id} className="grid grid-cols-[8.5rem_1fr_2.5rem] items-center gap-3 text-sm">
-                <span className={`truncate ${s.solved === 0 ? "text-faint" : ""}`}>{s.topic.title}</span>
-                <Bar value={s.mastery} color={s.state === "done" ? "var(--easy)" : s.mastery < 0.6 && s.solved > 0 ? "var(--hard)" : "var(--arc)"} label={`${s.topic.title} mastery`} />
-                <span className="num text-right text-xs text-faint">{Math.round(s.mastery * 100)}%</span>
+          {stats.every((s) => s.solved === 0) && <p className="text-sm text-muted">Solve a problem and its topic lights up here, cold steel heating toward white.</p>}
+          <ul className="space-y-3">
+            {stats.filter((s) => s.solved > 0).map((s) => (
+              <li key={s.topic.id} className="grid grid-cols-[9rem_1fr_3rem] items-center gap-3 text-sm">
+                <span className="truncate">{s.topic.title}</span>
+                <Bar heat value={s.mastery} label={`${s.topic.title} mastery`} />
+                <span className="num text-right text-sm text-muted">{Math.round(s.mastery * 100)}%</span>
               </li>
             ))}
           </ul>
@@ -123,7 +124,7 @@ export default async function ProfilePage() {
           <h2 id="badges-title" className="font-display text-xl font-semibold">
             Badges
           </h2>
-          <span className="num text-sm text-faint">
+          <span className="num text-sm text-muted">
             {unlocked} / {badges.length}
           </span>
         </div>
@@ -131,16 +132,12 @@ export default async function ProfilePage() {
           {badges.map((b) => (
             <li
               key={b.id}
-              className={`flex items-center gap-3 rounded-xl border p-3 ${b.unlocked ? "border-arc/40 bg-arc-soft" : "border-line"}`}
+              className={`flex items-center gap-3 rounded-xl border p-3 ${b.unlocked ? "border-ember/40 bg-ember-soft" : "border-line bg-bg/40"}`}
             >
-              <span
-                className={`grid size-10 shrink-0 place-items-center rounded-xl ${b.unlocked ? "bg-arc text-arc-ink" : "bg-panel-3 text-faint"}`}
-              >
-                <Icon name={b.unlocked ? "trophy" : "lock"} size={18} />
-              </span>
+              <Emblem id={b.id} unlocked={b.unlocked} size={52} />
               <div className="min-w-0 flex-1">
-                <p className={`text-sm font-semibold ${b.unlocked ? "" : "text-muted"}`}>{b.title}</p>
-                <p className="truncate text-xs text-faint">{b.hint}</p>
+                <p className={`text-sm font-semibold ${b.unlocked ? "text-text" : "text-muted"}`}>{b.title}</p>
+                <p className="text-xs text-muted">{b.hint}</p>
                 {!b.unlocked && b.progress > 0 && (
                   <div className="mt-1.5">
                     <Bar value={b.progress} label={`${b.title} progress`} />

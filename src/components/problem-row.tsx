@@ -94,7 +94,7 @@ export function ProblemRow({
   }
 
   return (
-    <li className="group rounded-xl px-2 py-1.5 transition-colors hover:bg-panel-2">
+    <li className="group rounded-xl pr-1 transition-colors hover:bg-panel-2">
       <div className="flex items-center gap-3">
         <button
           ref={box}
@@ -103,11 +103,15 @@ export function ProblemRow({
           aria-checked={solved}
           aria-label={`Mark ${title} as ${solved ? "not solved" : "solved"}`}
           onClick={toggle}
-          className={`grid size-6 shrink-0 place-items-center rounded-lg border transition-all duration-150 ${
-            solved ? "pop border-arc bg-arc text-arc-ink" : "border-line-strong hover:border-arc"
-          }`}
+          className="group/box grid size-11 shrink-0 place-items-center"
         >
-          {solved && <Icon name="check" size={14} />}
+          <span
+            className={`grid size-6 place-items-center rounded-lg border transition-all duration-150 ${
+              solved ? "pop border-arc bg-arc text-arc-ink" : "border-line-strong group-hover/box:border-arc"
+            }`}
+          >
+            {solved && <Icon name="check" size={14} />}
+          </span>
         </button>
 
         <div className="min-w-0 flex-1">
@@ -115,7 +119,7 @@ export function ProblemRow({
             href={url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`text-sm font-medium hover:underline ${solved ? "text-muted" : ""}`}
+            className={`inline-flex min-h-6 items-center text-sm font-medium hover:underline ${solved ? "text-muted" : ""}`}
           >
             {title}
           </a>
@@ -123,7 +127,7 @@ export function ProblemRow({
         </div>
 
         {solved && (
-          <div className="hidden items-center gap-1 sm:flex" role="group" aria-label="How well do you remember it?">
+          <div className="hidden items-center sm:flex" role="group" aria-label="How well do you remember it?">
             {([1, 2, 3] as const).map((v) => (
               <button
                 key={v}
@@ -132,16 +136,20 @@ export function ProblemRow({
                 aria-pressed={confidence === v}
                 title={CONF_LABEL[v - 1]}
                 aria-label={CONF_LABEL[v - 1]}
-                className={`size-2.5 rounded-full border transition-colors ${
-                  confidence != null && v <= confidence
-                    ? v === 1
-                      ? "border-hard bg-hard"
-                      : v === 2
-                        ? "border-medium bg-medium"
-                        : "border-easy bg-easy"
-                    : "border-line-strong hover:border-faint"
-                }`}
-              />
+                className="group/dot grid size-11 place-items-center"
+              >
+                <span
+                  className={`size-3 rounded-full border transition-colors ${
+                    confidence != null && v <= confidence
+                      ? v === 1
+                        ? "border-hard bg-hard"
+                        : v === 2
+                          ? "border-medium bg-medium"
+                          : "border-easy bg-easy"
+                      : "border-line-strong group-hover/dot:border-faint"
+                  }`}
+                />
+              </button>
             ))}
           </div>
         )}
@@ -152,7 +160,7 @@ export function ProblemRow({
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
             aria-label={notes ? "Edit your notes" : "Add notes"}
-            className={`grid size-8 place-items-center rounded-lg transition-colors hover:bg-panel-3 ${
+            className={`grid size-11 place-items-center rounded-lg transition-colors hover:bg-panel-3 ${
               notes ? "text-arc" : "text-faint hover:text-text"
             }`}
           >

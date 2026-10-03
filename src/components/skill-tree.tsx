@@ -49,7 +49,7 @@ export function SkillTree({
       <svg
         viewBox={`0 0 ${layout.width} ${layout.height}`}
         className="mx-auto block w-full"
-        style={{ minWidth: Math.min(layout.width, 640), maxHeight: "44rem" }}
+        style={{ minWidth: Math.min(layout.width, 640) }}
         role="group"
         aria-label="Skill tree of DSA topics"
       >
@@ -123,10 +123,10 @@ export function SkillTree({
                 strokeDasharray={t.state === "locked" ? "5 5" : undefined}
               />
               <title>{t.title}</title>
-              <text x={14} y={27} fontSize={12.5} fontWeight={650} fill={t.state === "locked" ? "var(--faint)" : "var(--text)"}>
+              <text x={14} y={27} fontSize={14} fontWeight={650} fill={t.state === "locked" ? "var(--muted)" : "var(--text)"}>
                 {clip(t.title)}
               </text>
-              <text x={14} y={46} fontSize={11} fill="var(--faint)" fontFamily="var(--font-geist-mono), monospace">
+              <text x={14} y={46} fontSize={12.5} fill="var(--muted)" fontFamily="var(--font-geist-mono), monospace">
                 {t.solved}/{t.total}
                 {t.due > 0 ? ` · ${t.due} due` : ""}
               </text>
@@ -147,8 +147,8 @@ export function SkillTree({
               )}
               {focusId === t.id && t.state !== "done" && (
                 <g transform={`translate(${NODE_W - 64} -10)`}>
-                  <rect width={58} height={20} rx={10} fill="var(--arc)" />
-                  <text x={29} y={14} textAnchor="middle" fontSize={10.5} fontWeight={700} fill="var(--arc-ink)">
+                  <rect width={58} height={20} rx={10} fill="var(--ember)" />
+                  <text x={29} y={14} textAnchor="middle" fontSize={11.5} fontWeight={700} fill="#2a1105">
                     FOCUS
                   </text>
                 </g>

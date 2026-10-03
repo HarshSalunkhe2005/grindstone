@@ -16,7 +16,8 @@ export function CountUp({ value, duration = 800 }: { value: number; duration?: n
     }
     const start = performance.now();
     const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
+      // `now` can predate `start` on the first frame; clamp so the count never dips below zero.
+      const t = Math.min(1, Math.max(0, (now - start) / duration));
       setShown(Math.round(value * (1 - Math.pow(1 - t, 3))));
       if (t < 1) raf.current = requestAnimationFrame(tick);
     };

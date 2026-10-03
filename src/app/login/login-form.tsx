@@ -94,7 +94,7 @@ export function LoginForm() {
 
       <button
         type="button"
-        className="w-full text-sm text-muted hover:text-text"
+        className="min-h-11 w-full text-sm text-muted hover:text-text"
         onClick={() => {
           setMode(mode === "signin" ? "signup" : "signin");
           setMessage(null);
