@@ -38,7 +38,7 @@ export function LoginForm() {
     if (error) {
       setMessage({ kind: "error", text: error.message });
     } else if (data.session) {
-      router.replace("/settings?welcome=1");
+      router.replace("/welcome");
       router.refresh();
       return;
     } else {
@@ -50,7 +50,7 @@ export function LoginForm() {
   return (
     <form onSubmit={submit} className="card space-y-5 p-7">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">{mode === "signin" ? "Welcome back" : "Create your account"}</h1>
+        <h1 className="font-display text-3xl font-semibold">{mode === "signin" ? "Welcome back" : "Create your account"}</h1>
         <p className="mt-1 text-sm text-muted">
           {mode === "signin" ? "Pick up where you left off." : "Free, and it takes under a minute."}
         </p>
@@ -88,7 +88,7 @@ export function LoginForm() {
         </p>
       )}
 
-      <button className="btn btn-spark w-full" disabled={busy}>
+      <button className="btn btn-arc w-full" disabled={busy}>
         {busy ? "One moment…" : mode === "signin" ? "Sign in" : "Create account"}
       </button>
 

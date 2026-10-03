@@ -9,6 +9,15 @@ const handle = z
   .refine((v) => v === "" || HANDLE_RE.test(v), "Handles may use letters, numbers, dot, dash and underscore.")
   .transform((v) => (v === "" ? null : v));
 
+function validTimezone(tz: string) {
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: tz });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const Patch = z
   .object({
     username: z
@@ -24,6 +33,9 @@ const Patch = z
     codeforcesHandle: handle,
     githubHandle: handle,
     targetDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().or(z.literal("").transform(() => null)),
+    dailyGoal: z.number().int().min(1).max(10),
+    timezone: z.string().max(60).refine(validTimezone, "Unknown timezone."),
+    onboarded: z.boolean(),
   })
   .partial();
 
@@ -56,6 +68,9 @@ export async function PATCH(request: Request) {
   if ("codeforcesHandle" in v) update.codeforces_handle = v.codeforcesHandle;
   if ("githubHandle" in v) update.github_handle = v.githubHandle;
   if ("targetDate" in v) update.target_date = v.targetDate;
+  if ("dailyGoal" in v) update.daily_goal = v.dailyGoal;
+  if ("timezone" in v) update.timezone = v.timezone;
+  if ("onboarded" in v) update.onboarded = v.onboarded;
   if (!Object.keys(update).length) return fail(400, "invalid_body", "Nothing to update.");
 
   const { data, error } = await supabase.from("profiles").update(update).eq("id", userId).select().single();

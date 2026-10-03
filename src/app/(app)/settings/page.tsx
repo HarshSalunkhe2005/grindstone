@@ -4,27 +4,25 @@ import { SettingsForm } from "./settings-form";
 
 export const metadata: Metadata = { title: "Settings" };
 
-export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
+export default async function SettingsPage() {
   const { profile } = await loadUserContext();
-  const { welcome } = await searchParams;
-
   return (
-    <div className="max-w-xl space-y-6">
+    <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">{welcome ? "Set up your profile" : "Settings"}</h1>
-        <p className="mt-1 text-muted">
-          Handles are public usernames. Saving them lets Grindstone read your public stats; it never asks for a password.
-        </p>
+        <h1 className="font-display text-4xl font-semibold sm:text-5xl">Settings</h1>
+        <p className="mt-2 text-muted">Tune the plan to how you actually work.</p>
       </div>
       <SettingsForm
         initial={{
           displayName: profile.display_name ?? "",
           username: profile.username ?? "",
           language: profile.language,
+          dailyGoal: profile.daily_goal,
+          timezone: profile.timezone,
+          targetDate: profile.target_date ?? "",
           leetcodeHandle: profile.leetcode_handle ?? "",
           codeforcesHandle: profile.codeforces_handle ?? "",
           githubHandle: profile.github_handle ?? "",
-          targetDate: profile.target_date ?? "",
         }}
       />
     </div>

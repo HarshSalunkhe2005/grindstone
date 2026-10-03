@@ -2,47 +2,42 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Icon } from "@/components/ui";
+import { toast } from "@/components/toast";
 
 export function SyncButton({ hasHandles }: { hasHandles: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
-  const [note, setNote] = useState<string | null>(null);
 
   async function sync() {
     setBusy(true);
-    setNote(null);
     try {
       const res = await fetch("/api/v1/sync", { method: "POST" });
       const json = await res.json();
       if (!res.ok) {
-        setNote(json.error?.message ?? "Sync failed.");
+        toast(json.error?.message ?? "Sync failed.", "error");
       } else {
         const failed = Object.entries(json.data.results as Record<string, { status: string; message?: string }>)
           .filter(([, r]) => r.status === "error")
           .map(([name, r]) => `${name}: ${r.message}`);
         const added = json.data.newlySolved as number;
-        setNote(
-          [added ? `${added} new solve${added === 1 ? "" : "s"} found.` : "Up to date.", ...failed].join(" "),
-        );
+        toast(added ? `${added} new solve${added === 1 ? "" : "s"} found.` : "Everything is up to date.", added ? "win" : "info");
+        failed.forEach((f) => toast(f, "error"));
         router.refresh();
       }
     } catch {
-      setNote("Network error. Try again.");
+      toast("Network error. Try again.", "error");
     }
     setBusy(false);
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <button className="btn btn-ghost" onClick={sync} disabled={busy || !hasHandles}>
+    <div className="flex items-center gap-3">
+      <button className="btn btn-quiet btn-sm" onClick={sync} disabled={busy || !hasHandles}>
+        <Icon name="refresh" size={14} className={busy ? "animate-spin" : ""} />
         {busy ? "Syncing…" : "Sync now"}
       </button>
-      {!hasHandles && <span className="text-sm text-muted">Add a handle in Settings first.</span>}
-      {note && (
-        <span role="status" className="text-sm text-muted">
-          {note}
-        </span>
-      )}
+      {!hasHandles && <span className="text-sm text-faint">Add a handle in Settings first.</span>}
     </div>
   );
 }
