@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# keep example env, ignore agent rule files that `next dev` regenerates
+!.env.example
+AGENTS.md
+CLAUDE.md

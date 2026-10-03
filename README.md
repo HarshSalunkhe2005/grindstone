@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Grindstone
 
-## Getting Started
+Placement prep, sharpened. A focused DSA roadmap, a daily plan, streaks and XP, and live stats from the coding platforms you already use.
 
-First, run the development server:
+**Stage 1a (current):** accounts, a 143-problem DSA roadmap across 18 topics, a "Today" screen that picks the next problems, streak / XP / level, an activity heatmap, and profile stats from LeetCode, Codeforces and GitHub.
+
+## Stack
+
+- Next.js 16 (App Router) + TypeScript + Tailwind CSS 4
+- Supabase: Postgres + Auth only. All reads and writes go through row-level security.
+- Our own REST API under `/api/v1` (validated with zod, one error shape, rate limited)
+
+## Run it
 
 ```bash
+npm install
+cp .env.example .env.local   # fill in your Supabase URL + publishable key
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The database schema and seed live in `supabase/migrations/` (apply in order).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+All responses are `{ "data": ... }` or `{ "error": { "code", "message" } }`.
 
-## Learn More
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/api/v1/me` | your profile |
+| PATCH | `/api/v1/me` | update name, username, language, handles, target date |
+| GET | `/api/v1/progress` | problems you have solved |
+| POST | `/api/v1/progress` | `{ problemId, solved }` tick or untick one problem |
+| POST | `/api/v1/sync` | refresh LeetCode / Codeforces / GitHub stats; recent LeetCode solves tick themselves |
 
-To learn more about Next.js, take a look at the following resources:
+## Security notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Every table has RLS on. Progress and stats are owner-only; the roadmap is public read.
+- XP cannot be edited by users: the column is not writable, and a server-side trigger derives it from solved problems.
+- Platform fetchers call fixed hosts only, and handles are validated, so a handle cannot redirect a request elsewhere.
+- Users can edit their own cached platform stats, so rankings must never use `platform_stats`.
+- The rate limiter is in memory (fine for one instance); it moves to Redis when the app scales out.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Roadmap
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1b: web-dev track, notes, revision queue (3/7/21 days), weak topics, badges, friends leaderboard (Redis).
+1c: 3D landing page and profile visual, motion polish, accessibility and Lighthouse pass, security review.

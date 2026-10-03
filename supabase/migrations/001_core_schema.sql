@@ -1,0 +1,10 @@
+-- Applied to the Supabase project via the MCP in three steps; kept here for reference.
+-- core_schema: profiles, topics, problems, user_problems, platform_stats, RLS, new-user trigger.
+-- lock_profile_columns: authenticated users may only update their own safe columns (not xp).
+-- 002_seed_dsa_roadmap.sql: 18 topics / 143 problems.
+-- 003_xp_trigger.sql: xp is derived server-side from solved problems (easy 10, medium 20, hard 40).
+--
+-- Key rules:
+--   * Every table has RLS on. topics/problems are public read; progress and stats are owner-only.
+--   * profiles.xp is written only by the sync_xp() security-definer trigger.
+--   * Indexes: problems(topic_id, position), user_problems(user_id, solved_at desc), user_problems(problem_id).
