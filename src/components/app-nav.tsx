@@ -5,10 +5,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { Icon, Mark, type IconName } from "@/components/ui";
 import { createClient } from "@/lib/supabase/client";
 
-const LINKS: { href: string; label: string; icon: IconName }[] = [
+const LINKS: { href: string; label: string; icon: IconName; desktopOnly?: boolean }[] = [
   { href: "/today", label: "Today", icon: "bolt" },
   { href: "/roadmap", label: "Roadmap", icon: "tree" },
   { href: "/learn", label: "Learn", icon: "note" },
+  { href: "/mock", label: "Mock", icon: "clock", desktopOnly: true },
   { href: "/profile", label: "Profile", icon: "user" },
   { href: "/settings", label: "Settings", icon: "gear" },
 ];
@@ -95,7 +96,7 @@ export function AppNav({
         aria-label="Main (mobile)"
         className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden"
       >
-        {LINKS.map((l) => (
+        {LINKS.filter((l) => !l.desktopOnly).map((l) => (
           <Link
             key={l.href}
             href={l.href}

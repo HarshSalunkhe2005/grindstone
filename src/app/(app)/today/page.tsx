@@ -223,6 +223,16 @@ export default async function TodayPage() {
             </p>
           </section>
 
+          <Link href="/mock" className="card card-lift glint flex items-center gap-4 p-5" aria-label="Start a timed mock interview">
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-ember/40 bg-ember-soft text-ember">
+              <Icon name="clock" size={20} />
+            </span>
+            <span>
+              <span className="font-display block text-lg font-semibold leading-tight">Mock interview</span>
+              <span className="text-sm text-muted">Timed round, 45 to 90 minutes</span>
+            </span>
+          </Link>
+
           {lesson && (
             <Link href={`/learn/${lesson.slug}`} className="card card-lift glint block p-5" aria-label={`Next web dev lesson: ${lesson.title}`}>
               <p className="text-sm text-muted">Web dev · {doneLessons.size === 0 ? "start here" : "up next"}</p>

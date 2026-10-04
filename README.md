@@ -38,6 +38,7 @@ Responses are `{ "data": ... }` or `{ "error": { "code", "message" } }`.
 | --- | --- | --- |
 | GET / PATCH | `/api/v1/me` | profile: name, username, language, handles, target date, daily goal, timezone |
 | GET / POST | `/api/v1/progress` | solved problems; tick or untick one |
+| POST / PATCH | `/api/v1/mock` | `{ minutes }` start a timed mock (or resume the running one); `{ id, solvedIds, finish? }` tick problems and finish |
 | PUT | `/api/v1/lessons` | `{ slug, done }` mark a web-dev lesson done or not (idempotent) |
 | POST | `/api/v1/review` | `{ problemId, rating }` record a revision and schedule the next |
 | PATCH | `/api/v1/notes` | `{ problemId, notes?, confidence? }` |
@@ -55,4 +56,6 @@ Responses are `{ "data": ... }` or `{ "error": { "code", "message" } }`.
 
 Done: a web-dev track (`/learn`): 8 modules, 24 short lessons on HTTP and REST, indexing, transactions, Redis, auth, security, performance and reliability, each with an exercise and primary sources. Lesson text lives in `src/content/lessons.ts`; completion is stored per user in `user_lessons` (migration 006) and written through `PUT /api/v1/lessons`.
 
-Next: a friends leaderboard (Redis), timed mock tests, and previous-year questions.
+Done: timed mock interviews (`/mock`): a 45, 60 or 90 minute round of unsolved problems from topics you have started, with a server-side clock, difficulty-weighted score and history. Finishing a round records the solves as progress (XP, revision ladder).
+
+Next: a friends leaderboard (Redis) and previous-year questions.
