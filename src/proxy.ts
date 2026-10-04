@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PROTECTED = ["/today", "/roadmap", "/learn", "/mock", "/profile", "/settings", "/welcome", "/log", "/friends"];
+const PROTECTED = ["/today", "/roadmap", "/learn", "/mock", "/profile", "/settings", "/welcome", "/log", "/friends", "/report"];
 
 /** Largest JSON body any endpoint accepts. Notes top out around 2 KB. */
 const MAX_BODY_BYTES = 16 * 1024;

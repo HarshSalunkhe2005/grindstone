@@ -219,3 +219,33 @@ export function Emblem({ id, unlocked, size = 44 }: { id: string; unlocked: bool
 
 export const DIFF_TEXT = { easy: "text-easy", medium: "text-medium", hard: "text-hard" } as const;
 export const DIFF_COLOR = { easy: "var(--easy)", medium: "var(--medium)", hard: "var(--hard)" } as const;
+
+const CREST_TIERS = ["#6b7a90", "#7f90a8", "#9fb0c6", "#c4d3e6", "#ffb26b", "#ff8a3d", "#ffd9a8", "#ffffff"];
+
+/**
+ * A crest for the user's level: a steel shield that gains rings and heats from cold grey to
+ * white-hot ember as the level rises (eight tiers, matching the level titles).
+ */
+export function LevelCrest({ level, size = 64 }: { level: number; size?: number }) {
+  const tier = Math.min(Math.max(level, 1), 8) - 1;
+  const color = CREST_TIERS[tier];
+  const hot = tier >= 4;
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" role="img" aria-label={`Level ${level} crest`}>
+      <defs>
+        <linearGradient id={`crest-${tier}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={color} stopOpacity="0.95" />
+          <stop offset="1" stopColor={hot ? "#c4501a" : "#232b38"} />
+        </linearGradient>
+      </defs>
+      <path d="M32 4 55 13v18c0 14-9.5 24.5-23 29C18.5 55.5 9 45 9 31V13L32 4Z" fill={`url(#crest-${tier})`} stroke={color} strokeWidth="2" strokeLinejoin="round" />
+      {Array.from({ length: Math.min(tier, 4) }, (_, i) => (
+        <path key={i} d={`M${18 + i * 1.5} ${24 + i * 5}h${28 - i * 3}`} stroke="#0b0e13" strokeOpacity="0.55" strokeWidth="2" strokeLinecap="round" />
+      ))}
+      <text x="32" y={tier >= 4 ? 44 : 40} textAnchor="middle" fontSize="20" fontWeight="700" fill="#0b0e13" fontFamily="var(--font-geist-mono), monospace">
+        {level}
+      </text>
+      {hot && <path d="M32 8v6M26 10l2 4M38 10l-2 4" stroke="#ffd9a8" strokeWidth="1.6" strokeLinecap="round" />}
+    </svg>
+  );
+}

@@ -445,6 +445,58 @@ export const MODULES: Module[] = [
       },
     ],
   },
+  {
+    slug: "career",
+    title: "Placement basics",
+    blurb: "The non-DSA half of getting hired: resume, one real project, and your stories.",
+    lessons: [
+      {
+        slug: "resume-one-page",
+        title: "A one-page resume that gets read",
+        minutes: 6,
+        summary: "A recruiter spends seconds on a first pass. One page, plain layout, and every line showing something you did and what changed because of it.",
+        points: [
+          "One page, one column, a standard font. Applicant-tracking systems and tired humans both read plain layouts better.",
+          "Lead with projects and skills if you have no experience. Education goes at the bottom unless it is your strongest card.",
+          "Write bullets as action plus result: 'Cut page load from 4 s to 1.2 s by lazy-loading images', not 'Worked on performance'.",
+          "Link your GitHub and one live demo. A running project beats a list of technologies.",
+        ],
+        pitfall: "Listing every technology you have touched. Claim only what you can discuss for five minutes in an interview.",
+        exercise: "Rewrite each bullet on your resume so it contains a number or a visible outcome. Delete any bullet that cannot.",
+        links: [{ label: "web.dev: Learn to build a portfolio site", url: "https://web.dev/learn" }],
+      },
+      {
+        slug: "showcase-project",
+        title: "One project worth talking about",
+        minutes: 6,
+        summary: "One deployed project you understand end to end is worth more than five tutorial clones. It gives every interviewer something real to ask about.",
+        points: [
+          "Pick something with users, even three friends. Real usage forces you to handle auth, errors and data, which tutorials skip.",
+          "Deploy it and keep it running. A live link in your resume turns a claim into evidence.",
+          "Write a short README: what it does, the stack, one hard problem you solved, and what you would change.",
+          "Be ready to explain every design decision, including the ones you got wrong.",
+        ],
+        pitfall: "A project you cannot explain. Interviewers probe the weakest part of your own code first.",
+        exercise: "Write the 60 second pitch for your best project: problem, solution, one technical challenge, one result.",
+        links: [{ label: "GitHub: About READMEs", url: "https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-readmes" }],
+      },
+      {
+        slug: "behavioural-stories",
+        title: "Behavioural answers with the STAR shape",
+        minutes: 5,
+        summary: "Behavioural questions ask for evidence of how you work. Prepare four or five true stories and reshape them to fit the question.",
+        points: [
+          "STAR: Situation, Task, Action, Result. Spend most of your time on what you did and what happened.",
+          "Prepare stories for a conflict, a failure, a deadline, leading something, and learning something fast.",
+          "Say 'I', not 'we', for your own part. Credit the team separately.",
+          "Own a failure plainly and finish on what you changed afterwards.",
+        ],
+        pitfall: "Memorised speeches. Know the beats of the story, not the sentences.",
+        exercise: "Write the five stories as four-line STAR outlines, then say each one aloud in under two minutes.",
+        links: [{ label: "Google: Prepare for behavioural interviews", url: "https://www.google.com/about/careers/applications/interview-tips/" }],
+      },
+    ],
+  },
 ];
 
 export const ALL_LESSONS: (Lesson & { module: Module; index: number })[] = MODULES.flatMap((module) =>

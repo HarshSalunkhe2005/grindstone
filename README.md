@@ -62,4 +62,14 @@ Done: timed mock interviews (`/mock`): a 45, 60 or 90 minute round of unsolved p
 
 Done: an opt-in friends leaderboard (`/friends`, Postgres functions, no one is visible unless they switch it on) and a private interview log (`/log`) for questions met in real interviews.
 
+Done in the latest pass:
+- **Explain it back** on every revision: a line or two on how you would solve it, shown to you next time.
+- **Time per problem** with a slow flag, and a **quick check** (two questions) on each of the 27 lessons; a lesson you scored low on is marked shaky.
+- **Placement basics** module (resume, one showcase project, STAR stories).
+- **Weekly report** (`/report`), a 0-100 **placement readiness** score with a "fix first" list, and a downloadable **share card** (`/api/v1/card`).
+- **Streak freezes** (earn one per 7 active days; bridges a single missed day) and a gentler **comeback** queue after a break.
+- **Level crest** that heats from steel to white-hot, and a level-up moment.
+- **Problem packs** on the roadmap (fundamentals, staples, DP and friends, easy wins, hard mode).
+- Installable (web manifest and icons), `/api/health` for uptime monitors, error and 404 pages, and CI (typecheck, lint, tests, build, audit).
+
 Hardening is described in [SECURITY.md](SECURITY.md); `scripts/security-check.py` attacks the live database and API and fails if anything gets through.

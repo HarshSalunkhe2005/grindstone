@@ -27,6 +27,8 @@ export interface Progress {
   review_count: number;
   confidence: number | null;
   notes: string | null;
+  recall_note: string | null;
+  solve_minutes: number | null;
 }
 export interface Edge {
   from_topic: number;

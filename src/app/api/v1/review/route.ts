@@ -5,6 +5,7 @@ import { scheduleReview } from "@/lib/review";
 const Body = z.object({
   problemId: z.number().int().positive(),
   rating: z.enum(["again", "good", "easy"]),
+  recall: z.string().trim().max(500).optional(),
 });
 
 // POST /api/v1/review { problemId, rating } -> records a revision and schedules the next one.
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
 
   const parsed = Body.safeParse(await readJson(request));
   if (!parsed.success) return fail(400, "invalid_body", "Expected { problemId: number, rating: 'again' | 'good' | 'easy' }.");
-  const { problemId, rating } = parsed.data;
+  const { problemId, rating, recall } = parsed.data;
 
   const { data: row, error: readError } = await supabase
     .from("user_problems")
@@ -37,6 +38,7 @@ export async function POST(request: Request) {
       last_reviewed_at: new Date().toISOString(),
       review_count: row.review_count + 1,
       confidence: outcome.confidence,
+      ...(recall ? { recall_note: recall } : {}),
     })
     .eq("user_id", userId)
     .eq("problem_id", problemId);

@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Icon, DIFF_TEXT } from "@/components/ui";
 import { sparksFromElement } from "@/components/spark-layer";
+import { dispatchLevelUp } from "@/components/level-up";
 import { toast } from "@/components/toast";
 import { levelFor } from "@/lib/game";
 import { softRefresh } from "@/lib/refresh";
@@ -11,6 +12,8 @@ import type { Difficulty } from "@/lib/insights";
 
 const XP: Record<Difficulty, number> = { easy: 10, medium: 20, hard: 40 };
 const CONF_LABEL = ["Shaky", "Okay", "Solid"];
+/** Past this many minutes a solve counts as slow for its difficulty. */
+const SLOW_MINUTES: Record<Difficulty, number> = { easy: 20, medium: 40, hard: 60 };
 
 async function call(path: string, method: string, body: unknown) {
   const res = await fetch(path, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
@@ -27,6 +30,7 @@ export function ProblemRow({
   solved: initialSolved,
   confidence: initialConfidence = null,
   notes: initialNotes = null,
+  minutes: initialMinutes = null,
   hint,
 }: {
   id: number;
@@ -36,6 +40,7 @@ export function ProblemRow({
   solved: boolean;
   confidence?: number | null;
   notes?: string | null;
+  minutes?: number | null;
   hint?: string;
 }) {
   const router = useRouter();
@@ -44,6 +49,8 @@ export function ProblemRow({
   const [confidence, setConfidence] = useState(initialConfidence);
   const [notes, setNotes] = useState(initialNotes ?? "");
   const [savedNotes, setSavedNotes] = useState(initialNotes ?? "");
+  const [minutes, setMinutes] = useState(initialMinutes ? String(initialMinutes) : "");
+  const [savedMinutes, setSavedMinutes] = useState(initialMinutes ? String(initialMinutes) : "");
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -57,6 +64,7 @@ export function ProblemRow({
         const before = levelFor(Math.max(0, out.xp - XP[difficulty]));
         const levelUp = after.level > before.level;
         sparksFromElement(box.current, levelUp ? 2.4 : difficulty === "hard" ? 1.6 : 1);
+        if (levelUp) dispatchLevelUp({ level: after.level, title: after.title });
         toast(levelUp ? `Level up: ${after.title}. Your edge just got sharper.` : `+${XP[difficulty]} XP · ${title}`, "win");
       } else {
         setConfidence(null);
@@ -80,6 +88,23 @@ export function ProblemRow({
       toast(e instanceof Error ? e.message : "Could not save", "error");
     }
   }
+
+  async function saveMinutes() {
+    if (minutes === savedMinutes) return;
+    const n = minutes.trim() === "" ? null : Number(minutes);
+    if (n !== null && (!Number.isInteger(n) || n < 1 || n > 600)) {
+      toast("Minutes should be a whole number from 1 to 600.", "error");
+      return;
+    }
+    try {
+      await call("/api/v1/notes", "PATCH", { problemId: id, minutes: n });
+      setSavedMinutes(minutes);
+    } catch (e) {
+      toast(e instanceof Error ? e.message : "Could not save", "error");
+    }
+  }
+
+  const slow = savedMinutes !== "" && Number(savedMinutes) > SLOW_MINUTES[difficulty];
 
   async function saveNotes() {
     if (notes === savedNotes) return;
@@ -123,7 +148,12 @@ export function ProblemRow({
           >
             {title}
           </a>
-          {hint && <p className="truncate text-xs text-faint">{hint}</p>}
+          {(hint || slow) && (
+            <p className="truncate text-xs text-faint">
+              {hint}
+              {slow && <span className="text-ember">{hint ? " · " : ""}took {savedMinutes} min, slow for {difficulty}</span>}
+            </p>
+          )}
         </div>
 
         {solved && (
@@ -183,6 +213,18 @@ export function ProblemRow({
               rows={3}
               placeholder="The key insight, the trap you fell into, the complexity…"
               className="input !min-h-0 resize-y py-2.5 text-sm leading-6"
+            />
+          </label>
+          <label className="flex items-center gap-3 text-sm text-muted">
+            How long did it take?
+            <input
+              className="input !w-24"
+              inputMode="numeric"
+              value={minutes}
+              onChange={(e) => setMinutes(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
+              onBlur={saveMinutes}
+              aria-label="Minutes taken"
+              placeholder="min"
             />
           </label>
           <div className="flex items-center justify-between text-xs text-faint">

@@ -28,25 +28,55 @@ const keyToUtc = (key: string) => Date.parse(`${key}T00:00:00Z`);
 const utcToKey = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 export const addDays = (key: string, n: number) => utcToKey(keyToUtc(key) + n * DAY_MS);
 
-export function streaks(days: Set<string>, now = new Date(), tz = DEFAULT_TZ) {
+/** One streak freeze is earned for every 7 active days. It quietly bridges a single missed day. */
+export const freezeBudget = (activeDays: number) => Math.floor(activeDays / 7);
+
+/**
+ * Current and best streak. With a `freezes` budget, a single missed day between two active days
+ * does not break the run (it just does not add to the count). Everything stays derived from the
+ * solve days, so nothing needs to be stored or spent.
+ */
+export function streaks(days: Set<string>, now = new Date(), tz = DEFAULT_TZ, freezes = 0) {
   const today = dayKey(now, tz);
   // A streak stays alive until the end of the day after your last solve.
   let cursor = days.has(today) ? today : addDays(today, -1);
+  let left = freezes;
   let current = 0;
-  while (days.has(cursor)) {
-    current += 1;
+  let frozen = 0;
+  for (;;) {
+    if (days.has(cursor)) {
+      current += 1;
+    } else if (left > 0 && days.has(addDays(cursor, -1))) {
+      left -= 1;
+      frozen += 1;
+    } else {
+      break;
+    }
     cursor = addDays(cursor, -1);
   }
   const sorted = [...days].sort();
   let best = 0;
   let run = 0;
   let prev = "";
+  let spare = freezes;
   for (const d of sorted) {
-    run = prev && addDays(prev, 1) === d ? run + 1 : 1;
+    if (prev && addDays(prev, 1) === d) run += 1;
+    else if (prev && addDays(prev, 2) === d && spare > 0) {
+      spare -= 1;
+      run += 1;
+    } else run = 1;
     best = Math.max(best, run);
     prev = d;
   }
-  return { current, best, todayDone: days.has(today) };
+  best = Math.max(best, current);
+  return { current, best, todayDone: days.has(today), frozen, freezesLeft: left };
+}
+
+/** Whole days since the last solve (0 if you solved today), or null if you never have. */
+export function daysAway(days: Set<string>, now = new Date(), tz = DEFAULT_TZ): number | null {
+  if (days.size === 0) return null;
+  const last = [...days].sort().at(-1)!;
+  return Math.max(0, Math.round((keyToUtc(dayKey(now, tz)) - keyToUtc(last)) / DAY_MS));
 }
 
 export interface HeatCell {

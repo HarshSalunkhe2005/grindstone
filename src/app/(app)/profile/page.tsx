@@ -3,7 +3,7 @@ import { CountUp } from "@/components/count-up";
 import { Heatmap } from "@/components/heatmap";
 import { SyncButton } from "@/components/sync-button";
 import Link from "next/link";
-import { Bar, DIFF_COLOR, DIFF_TEXT, Emblem, Icon, Ring } from "@/components/ui";
+import { Bar, DIFF_COLOR, DIFF_TEXT, Emblem, Icon, LevelCrest, Ring } from "@/components/ui";
 import { loadUserContext } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { heatmapWeeks } from "@/lib/game";
@@ -45,14 +45,11 @@ export default async function ProfilePage() {
   const lastSync = [...platform.values()].map((s) => s.fetched_at).sort().at(-1);
   const reviews = progress.reduce((n, p) => n + p.review_count, 0);
   const unlocked = badges.filter((b) => b.unlocked).length;
-  const initials = (profile.display_name ?? "?").split(" ").map((w: string) => w[0]).slice(0, 2).join("").toUpperCase();
 
   return (
     <div className="space-y-6">
       <header className="card card-hero flex flex-wrap items-center gap-5 p-6 sm:p-7">
-        <div className="grid size-16 shrink-0 place-items-center rounded-2xl border border-ember/50 bg-ember-soft font-display text-2xl font-semibold text-ember">
-          {initials}
-        </div>
+        <LevelCrest level={level.level} size={72} />
         <div className="min-w-0 flex-1">
           <h1 className="font-display text-3xl font-semibold">{profile.display_name || "Your profile"}</h1>
           <p className="mt-0.5 text-sm text-muted">{profile.username ? `@${profile.username}` : "Set a username in Settings"}</p>
@@ -82,15 +79,23 @@ export default async function ProfilePage() {
         </dl>
       </header>
 
-      <nav aria-label="More tools" className="grid grid-cols-3 gap-3">
+      <nav aria-label="More tools" className="grid grid-cols-2 gap-3 sm:grid-cols-5">
         {[
           ["/mock", "Mock interview", "clock"],
           ["/friends", "Friends", "trophy"],
           ["/log", "Interview log", "list"],
+          ["/report", "Weekly report", "note"],
+          ["/api/v1/card", "Share card", "download"],
         ].map(([href, label, icon]) => (
-          <Link key={href} href={href} className="card card-lift glint flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-medium">
-            <Icon name={icon as "clock"} size={16} className="text-ember" /> {label}
-          </Link>
+          href.startsWith("/api/") ? (
+            <a key={href} href={href} download className="card card-lift glint flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-medium">
+              <Icon name={icon as "clock"} size={16} className="text-ember" /> {label}
+            </a>
+          ) : (
+            <Link key={href} href={href} className="card card-lift glint flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-medium">
+              <Icon name={icon as "clock"} size={16} className="text-ember" /> {label}
+            </Link>
+          )
         ))}
       </nav>
 

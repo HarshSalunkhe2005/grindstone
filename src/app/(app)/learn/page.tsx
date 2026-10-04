@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Bar, Icon, WheelArt } from "@/components/ui";
 import { ALL_LESSONS } from "@/content/lessons";
+import { QUIZZES } from "@/content/quizzes";
 import { loadCompletedLessons, moduleProgress, nextLesson } from "@/lib/learn";
 
 export const metadata: Metadata = { title: "Learn" };
@@ -18,7 +19,7 @@ export default async function LearnPage() {
         <WheelArt className="pointer-events-none absolute -bottom-24 -right-16 size-72 opacity-70" sparks={false} />
         <h1 className="font-display relative text-4xl font-semibold sm:text-5xl">Web dev, from the wire up</h1>
         <p className="relative mt-2 max-w-xl text-muted">
-          Eight short modules on the parts that interviews and production both ask about: HTTP, indexing, transactions, Redis, auth, security, performance and reliability. Five minutes a lesson, one exercise each.
+          Nine short modules on the parts that interviews and production both ask about: HTTP, indexing, transactions, Redis, auth, security, performance, reliability and the non-DSA half of placements. Five minutes a lesson, a quick check and one exercise each.
         </p>
         <div className="relative mt-6 max-w-md">
           <div className="mb-1.5 flex justify-between text-sm">
@@ -69,6 +70,7 @@ export default async function LearnPage() {
                         {isDone && <Icon name="check" size={12} />}
                       </span>
                       <span className={`flex-1 ${isDone ? "text-muted" : ""}`}>{l.title}</span>
+                      {isDone && done.get(l.slug) != null && done.get(l.slug)! < (QUIZZES[l.slug]?.length ?? 0) && <span className="text-xs text-ember">shaky</span>}
                       <span className="num text-xs text-muted">{l.minutes} min</span>
                     </Link>
                   </li>

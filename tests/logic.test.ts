@@ -115,6 +115,8 @@ const solved = (id: number, over: Partial<Progress> = {}): Progress => ({
   review_count: 0,
   confidence: 2,
   notes: null,
+  recall_note: null,
+  solve_minutes: null,
   ...over,
 });
 

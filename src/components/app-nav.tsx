@@ -12,6 +12,7 @@ const LINKS: { href: string; label: string; icon: IconName; desktopOnly?: boolea
   { href: "/mock", label: "Mock", icon: "clock", desktopOnly: true },
   { href: "/friends", label: "Friends", icon: "trophy", desktopOnly: true },
   { href: "/log", label: "Log", icon: "list", desktopOnly: true },
+  { href: "/report", label: "Report", icon: "note", desktopOnly: true },
   { href: "/profile", label: "Profile", icon: "user" },
   { href: "/settings", label: "Settings", icon: "gear" },
 ];

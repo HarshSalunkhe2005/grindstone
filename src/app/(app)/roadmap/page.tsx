@@ -11,6 +11,7 @@ export default async function RoadmapPage() {
 
   const topics: RoadmapTopic[] = stats.map((s) => ({
     id: s.topic.id,
+    slug: s.topic.slug,
     position: s.topic.position,
     title: s.topic.title,
     blurb: s.topic.blurb,
@@ -33,6 +34,7 @@ export default async function RoadmapPage() {
       solved: Boolean(pr),
       confidence: pr?.confidence ?? null,
       notes: pr?.notes ?? null,
+      minutes: pr?.solve_minutes ?? null,
       due: pr ? isDue(pr.next_review_at, now) : false,
     };
   });

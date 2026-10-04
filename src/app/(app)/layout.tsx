@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { AppNav } from "@/components/app-nav";
+import { LevelUpHost } from "@/components/level-up";
 import { SparkLayer } from "@/components/spark-layer";
 import { ToastHost } from "@/components/toast";
 import { loadUserContext } from "@/lib/data";
@@ -18,6 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       />
       <main className="mx-auto w-full max-w-7xl flex-1 px-5 pb-28 pt-8 sm:pb-12">{children}</main>
       <SparkLayer />
+      <LevelUpHost />
       <ToastHost />
     </>
   );

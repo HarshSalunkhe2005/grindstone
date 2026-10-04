@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ProblemRow } from "@/components/problem-row";
 import { SkillTree, type TreeTopic } from "@/components/skill-tree";
 import { Bar, Icon } from "@/components/ui";
+import { inPack, PACKS } from "@/lib/packs";
 import type { Difficulty } from "@/lib/insights";
 import type { TreeEdge } from "@/lib/tree-layout";
 
@@ -16,10 +17,12 @@ export interface RoadmapProblem {
   solved: boolean;
   confidence: number | null;
   notes: string | null;
+  minutes: number | null;
   due: boolean;
 }
 
 export interface RoadmapTopic extends TreeTopic {
+  slug: string;
   blurb: string | null;
   prereqs: number[];
 }
@@ -43,6 +46,9 @@ export function RoadmapClient({
   const [diffs, setDiffs] = useState<Set<Difficulty>>(new Set());
   const [unsolvedOnly, setUnsolvedOnly] = useState(false);
   const [dueOnly, setDueOnly] = useState(false);
+  const [packId, setPackId] = useState<string | null>(null);
+  const pack = PACKS.find((p) => p.id === packId) ?? null;
+  const slugOf = useMemo(() => new Map(topics.map((t) => [t.id, t.slug])), [topics]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -51,9 +57,10 @@ export function RoadmapClient({
         (!q || p.title.toLowerCase().includes(q)) &&
         (diffs.size === 0 || diffs.has(p.difficulty)) &&
         (!unsolvedOnly || !p.solved) &&
-        (!dueOnly || p.due),
+        (!dueOnly || p.due) &&
+        (!pack || (inPack(pack, slugOf.get(p.topicId), p.difficulty) && !p.solved)),
     );
-  }, [problems, query, diffs, unsolvedOnly, dueOnly]);
+  }, [problems, query, diffs, unsolvedOnly, dueOnly, pack, slugOf]);
 
   const byTopic = useMemo(() => {
     const m = new Map<number, RoadmapProblem[]>();
@@ -61,7 +68,7 @@ export function RoadmapClient({
     return m;
   }, [filtered]);
 
-  const filtering = query.trim() !== "" || diffs.size > 0 || unsolvedOnly || dueOnly;
+  const filtering = query.trim() !== "" || diffs.size > 0 || unsolvedOnly || dueOnly || pack !== null;
   const current = topics.find((t) => t.id === selected) ?? null;
   const solvedTotal = problems.filter((p) => p.solved).length;
 
@@ -123,6 +130,7 @@ export function RoadmapClient({
               setDiffs(new Set());
               setUnsolvedOnly(false);
               setDueOnly(false);
+              setPackId(null);
             }}
           >
             Clear filters
@@ -130,7 +138,30 @@ export function RoadmapClient({
         )}
       </div>
 
-      {view === "tree" ? (
+      <div className="flex flex-wrap items-center gap-2" aria-label="Problem packs">
+        <span className="text-sm text-muted">Packs</span>
+        {PACKS.map((p) => {
+          const left = problems.filter((x) => !x.solved && inPack(p, slugOf.get(x.topicId), x.difficulty)).length;
+          return (
+            <button
+              key={p.id}
+              type="button"
+              className="chip"
+              aria-pressed={packId === p.id}
+              title={p.blurb}
+              onClick={() => {
+                setPackId(packId === p.id ? null : p.id);
+                setView("list");
+              }}
+            >
+              {p.label} <span className="num text-xs">{left} left</span>
+            </button>
+          );
+        })}
+      </div>
+      {pack && <p className="-mt-2 text-sm text-muted">{pack.blurb}. Showing only what you have not solved yet.</p>}
+
+      {view === "tree" && !pack ? (
         <>
           <SkillTree topics={topics} edges={edges} selectedId={selected} focusId={focusId} onSelect={setSelected} />
           {current && (
@@ -162,7 +193,7 @@ export function RoadmapClient({
               </div>
               <ul className="mt-4 border-t border-line pt-3">
                 {(byTopic.get(current.id) ?? []).map((p) => (
-                  <ProblemRow key={p.id} id={p.id} title={p.title} url={p.url} difficulty={p.difficulty} solved={p.solved} confidence={p.confidence} notes={p.notes} />
+                  <ProblemRow key={p.id} id={p.id} title={p.title} url={p.url} difficulty={p.difficulty} solved={p.solved} confidence={p.confidence} notes={p.notes} minutes={p.minutes} />
                 ))}
               </ul>
               {(byTopic.get(current.id) ?? []).length === 0 && <p className="py-6 text-center text-sm text-faint">No problems match these filters.</p>}
@@ -191,7 +222,7 @@ export function RoadmapClient({
                 </summary>
                 <ul className="border-t border-line p-2">
                   {list.map((p) => (
-                    <ProblemRow key={p.id} id={p.id} title={p.title} url={p.url} difficulty={p.difficulty} solved={p.solved} confidence={p.confidence} notes={p.notes} />
+                    <ProblemRow key={p.id} id={p.id} title={p.title} url={p.url} difficulty={p.difficulty} solved={p.solved} confidence={p.confidence} notes={p.notes} minutes={p.minutes} />
                   ))}
                 </ul>
               </details>

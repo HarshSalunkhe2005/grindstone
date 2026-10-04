@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/ui";
 import { ALL_LESSONS, findLesson } from "@/content/lessons";
+import { QUIZZES } from "@/content/quizzes";
 import { loadCompletedLessons } from "@/lib/learn";
 import { CompleteButton } from "./complete-button";
 
@@ -38,7 +39,8 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
   const found = findLesson(slug);
   if (!found) notFound();
   const { lesson, prev, next, position, total } = found;
-  const done = (await loadCompletedLessons()).has(lesson.slug);
+  const completed = await loadCompletedLessons();
+  const done = completed.has(lesson.slug);
 
   return (
     <article className="mx-auto max-w-3xl space-y-6">
@@ -98,7 +100,13 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
       </section>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-6">
-        <CompleteButton slug={lesson.slug} initiallyDone={done} nextHref={next ? `/learn/${next.slug}` : "/learn"} />
+        <CompleteButton
+          slug={lesson.slug}
+          initiallyDone={done}
+          initialScore={completed.get(lesson.slug) ?? null}
+          nextHref={next ? `/learn/${next.slug}` : "/learn"}
+          questions={QUIZZES[lesson.slug] ?? []}
+        />
         <span className="num text-sm text-muted">
           {position} of {total}
         </span>

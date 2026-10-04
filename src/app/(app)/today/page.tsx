@@ -3,9 +3,11 @@ import Link from "next/link";
 import { CountUp } from "@/components/count-up";
 import { ProblemRow } from "@/components/problem-row";
 import { ReviewQueue, type DueItem } from "@/components/review-queue";
-import { Bar, DIFF_COLOR, Emblem, Icon, Ring, WheelArt } from "@/components/ui";
+import { Bar, DIFF_COLOR, Emblem, Icon, LevelCrest, Ring, WheelArt } from "@/components/ui";
 import { loadUserContext } from "@/lib/data";
+import { ReadinessCard } from "@/components/readiness-card";
 import { loadCompletedLessons, nextLesson } from "@/lib/learn";
+import { loadReadiness } from "@/lib/readiness-data";
 import { addDays, daysUntil, greeting, longDate } from "@/lib/game";
 
 export const metadata: Metadata = { title: "Today" };
@@ -13,6 +15,7 @@ export const metadata: Metadata = { title: "Today" };
 export default async function TodayPage() {
   const [ctx, doneLessons] = await Promise.all([loadUserContext(), loadCompletedLessons()]);
   const lesson = nextLesson(doneLessons);
+  const ready = await loadReadiness(ctx);
   const { profile, tz, stats, badges, progress, rec, due, dueToday, picks, perDay, streak, today, solvedToday, goal, level, solvedIds } = ctx;
 
   const topicName = new Map(ctx.topics.map((t) => [t.id, t.title]));
@@ -24,6 +27,7 @@ export default async function TodayPage() {
     topic: topicName.get(problem.topic_id) ?? "",
     stage: progress.review_stage,
     notes: progress.notes,
+    recall: progress.recall_note,
     solvedAt: progress.solved_at,
   }));
 
@@ -85,6 +89,12 @@ export default async function TodayPage() {
           </span>
         )}
       </div>
+
+      {ctx.comeback && (
+        <p className="card card-hero px-5 py-3 text-sm">
+          Welcome back after {ctx.away} days. Your revision queue is capped at 4 today so you ease in; the rest waits.
+        </p>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="space-y-6">
@@ -153,6 +163,7 @@ export default async function TodayPage() {
                       solved={Boolean(pr)}
                       confidence={pr?.confidence ?? null}
                       notes={pr?.notes ?? null}
+                      minutes={pr?.solve_minutes ?? null}
                       hint={topicName.get(p.topic_id)}
                     />
                   );
@@ -208,11 +219,14 @@ export default async function TodayPage() {
               ))}
             </div>
             {!streak.todayDone && streak.current > 0 && <p className="mt-3 text-xs text-ember">Solve one today to keep it alive.</p>}
+            {streak.frozen > 0 && <p className="mt-3 text-xs text-muted">A streak freeze covered {streak.frozen} missed day{streak.frozen === 1 ? "" : "s"}.</p>}
+            <p className="num mt-2 text-xs text-muted">{streak.freezesLeft} freeze{streak.freezesLeft === 1 ? "" : "s"} banked · earn one every 7 active days</p>
           </section>
 
           <section className="card p-5" aria-label="Level">
-            <div className="flex items-baseline justify-between">
-              <p className="font-display text-lg font-semibold">{level.title}</p>
+            <div className="flex items-center gap-3">
+              <LevelCrest level={level.level} size={44} />
+              <p className="font-display flex-1 text-lg font-semibold">{level.title}</p>
               <span className="num text-xs text-muted">Lv {level.level}</span>
             </div>
             <div className="mt-3">
@@ -222,6 +236,8 @@ export default async function TodayPage() {
               {profile.xp} XP · {level.toNext} to the next edge
             </p>
           </section>
+
+          <ReadinessCard r={ready} compact />
 
           <Link href="/mock" className="card card-lift glint flex items-center gap-4 p-5" aria-label="Start a timed mock interview">
             <span className="grid size-11 shrink-0 place-items-center rounded-xl border border-ember/40 bg-ember-soft text-ember">

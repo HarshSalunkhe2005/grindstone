@@ -17,6 +17,7 @@ export interface DueItem {
   topic: string;
   stage: number;
   notes: string | null;
+  recall: string | null;
   solvedAt: string;
 }
 
@@ -47,6 +48,7 @@ export function ReviewQueue({ items, total }: { items: DueItem[]; total: number 
   const [index, setIndex] = useState(0);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(0);
+  const [recall, setRecall] = useState("");
   const cardRef = useRef<HTMLLIElement>(null);
 
   const item = items[index];
@@ -61,7 +63,7 @@ export function ReviewQueue({ items, total }: { items: DueItem[]; total: number 
         const res = await fetch("/api/v1/review", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ problemId: item.problemId, rating }),
+          body: JSON.stringify({ problemId: item.problemId, rating, ...(recall.trim() ? { recall: recall.trim() } : {}) }),
         });
         const json = await res.json().catch(() => null);
         if (!res.ok) throw new Error(json?.error?.message ?? "Could not save the review");
@@ -80,6 +82,7 @@ export function ReviewQueue({ items, total }: { items: DueItem[]; total: number 
           rating === "again" ? "info" : "win",
         );
         setDone((d) => d + 1);
+        setRecall("");
         setIndex((i) => i + 1);
         softRefresh(router);
       } catch (e) {
@@ -87,7 +90,7 @@ export function ReviewQueue({ items, total }: { items: DueItem[]; total: number 
       }
       setBusy(false);
     },
-    [item, busy, index, items.length, router],
+    [item, busy, index, items.length, router, recall],
   );
 
   // 1 / 2 / 3 rate the current card, unless the user is typing somewhere.
@@ -159,7 +162,24 @@ export function ReviewQueue({ items, total }: { items: DueItem[]; total: number 
 
           {item.notes && <p className="well mt-4 px-3.5 py-2.5 text-sm leading-6 text-muted">{item.notes}</p>}
 
-          <p className="mt-5 text-sm text-muted">Try it from memory, then rate how it went.</p>
+          {item.recall && (
+            <p className="mt-3 text-sm text-muted">
+              <span className="text-ember">Last time you wrote:</span> {item.recall}
+            </p>
+          )}
+
+          <label className="mt-5 block space-y-1.5">
+            <span className="text-sm text-muted">Explain it back. How would you solve it? (a line or two)</span>
+            <textarea
+              className="input !min-h-0 resize-y py-2.5 text-sm leading-6"
+              rows={2}
+              value={recall}
+              onChange={(e) => setRecall(e.target.value)}
+              maxLength={500}
+              placeholder="Two pointers from both ends, move the smaller side inward..."
+            />
+          </label>
+          <p className="mt-3 text-sm text-muted">Then rate how it went.</p>
           <div className="mt-3 grid gap-2 sm:grid-cols-3">
             {RATINGS.map((r) => (
               <button

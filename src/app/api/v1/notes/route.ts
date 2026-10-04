@@ -6,8 +6,9 @@ const Body = z
     problemId: z.number().int().positive(),
     notes: z.string().max(2000).optional(),
     confidence: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
+    minutes: z.number().int().min(1).max(600).nullable().optional(),
   })
-  .refine((v) => v.notes !== undefined || v.confidence !== undefined, "Nothing to update.");
+  .refine((v) => v.notes !== undefined || v.confidence !== undefined || v.minutes !== undefined, "Nothing to update.");
 
 // PATCH /api/v1/notes { problemId, notes?, confidence? } -> your own notes and confidence on a solved problem.
 export async function PATCH(request: Request) {
@@ -19,18 +20,19 @@ export async function PATCH(request: Request) {
 
   const parsed = Body.safeParse(await readJson(request));
   if (!parsed.success) return fail(400, "invalid_body", parsed.error.issues[0]?.message ?? "Invalid input.");
-  const { problemId, notes, confidence } = parsed.data;
+  const { problemId, notes, confidence, minutes } = parsed.data;
 
   const update: Record<string, unknown> = {};
   if (notes !== undefined) update.notes = notes.trim() === "" ? null : notes;
   if (confidence !== undefined) update.confidence = confidence;
+  if (minutes !== undefined) update.solve_minutes = minutes;
 
   const { data, error } = await supabase
     .from("user_problems")
     .update(update)
     .eq("user_id", userId)
     .eq("problem_id", problemId)
-    .select("problem_id, notes, confidence")
+    .select("problem_id, notes, confidence, solve_minutes")
     .maybeSingle();
   if (error) return fail(500, "db_error", "Could not save your notes.");
   if (!data) return fail(404, "not_found", "Solve this problem first to add notes.");

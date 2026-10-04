@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { DEFAULT_TZ, dayKey, levelFor, streaks } from "@/lib/game";
+import { DEFAULT_TZ, dayKey, daysAway, freezeBudget, levelFor, streaks } from "@/lib/game";
 import {
   badges as computeBadges,
   nextProblems,
@@ -27,9 +27,11 @@ function safeTimezone(tz: string | null | undefined): string {
 
 /** Most revisions served in one day, so a long break never turns into an avalanche. */
 export const REVIEW_CAP = 8;
+/** The cap on the first days back after a break of three days or more. */
+export const COMEBACK_CAP = 4;
 
 const PROGRESS_COLUMNS =
-  "problem_id, solved_at, source, review_stage, next_review_at, last_reviewed_at, review_count, confidence, notes";
+  "problem_id, solved_at, source, review_stage, next_review_at, last_reviewed_at, review_count, confidence, notes, recall_note, solve_minutes";
 
 // cache() makes the layout and the page share one load per request.
 export const loadUserContext = cache(async () => {
@@ -66,7 +68,11 @@ export const loadUserContext = cache(async () => {
     perDay.set(k, (perDay.get(k) ?? 0) + 1);
   }
 
-  const streak = streaks(new Set(perDay.keys()), now, tz);
+  const activeDays = new Set(perDay.keys());
+  const streak = streaks(activeDays, now, tz, freezeBudget(activeDays.size));
+  const away = daysAway(activeDays, now, tz);
+  // Coming back after a break: a gentler queue so one missed week does not become an avalanche.
+  const comeback = away !== null && away >= 3;
   const today = dayKey(now, tz);
   const solvedToday = perDay.get(today) ?? 0;
   const stats = topicStats(topics, problems, progress, edges, now);
@@ -111,7 +117,9 @@ export const loadUserContext = cache(async () => {
     stats,
     rec,
     due,
-    dueToday: due.slice(0, REVIEW_CAP),
+    dueToday: due.slice(0, comeback ? COMEBACK_CAP : REVIEW_CAP),
+    away,
+    comeback,
     picks,
     badges: badgeList,
     level: levelFor(profile.xp),
