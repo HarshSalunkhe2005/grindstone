@@ -17,13 +17,13 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      # The lockfile is written by npm 11; match it so `npm ci` agrees with the lock.
-      - run: npm install -g npm@11.6.2
       - name: Install
         shell: bash
         run: |
-          npm ci > /tmp/ci.log 2>&1 || { echo "::error::$(tail -c 900 /tmp/ci.log | tr '
-' ' ' | tr -d '%')"; exit 1; }
+          if ! npm ci > /tmp/ci.log 2>&1; then
+            echo "::error::$(tail -c 900 /tmp/ci.log | tr '\n' ' ' | tr -d '%')"
+            exit 1
+          fi
       - run: npx tsc --noEmit
       - run: npx eslint src tests
       - run: npx vitest run
