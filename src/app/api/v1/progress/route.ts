@@ -10,6 +10,8 @@ const Body = z.object({
 export async function GET() {
   const { supabase, userId } = await requireUser();
   if (!userId) return fail(401, "unauthorized", "Sign in first.");
+  const limit = await rateLimit(supabase, "progress-read", 120, 60_000);
+  if (!limit.allowed) return tooMany(limit.retryAfter);
 
   const { data, error } = await supabase
     .from("user_problems")

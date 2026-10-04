@@ -36,6 +36,7 @@ const Patch = z
     dailyGoal: z.number().int().min(1).max(10),
     timezone: z.string().max(60).refine(validTimezone, "Unknown timezone."),
     onboarded: z.boolean(),
+    leaderboardVisible: z.boolean(),
   })
   .partial();
 
@@ -43,6 +44,8 @@ const Patch = z
 export async function GET() {
   const { supabase, userId } = await requireUser();
   if (!userId) return fail(401, "unauthorized", "Sign in first.");
+  const limit = await rateLimit(supabase, "me-read", 120, 60_000);
+  if (!limit.allowed) return tooMany(limit.retryAfter);
   const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
   if (error) return fail(500, "db_error", "Could not load your profile.");
   return ok(data);
@@ -71,6 +74,7 @@ export async function PATCH(request: Request) {
   if ("dailyGoal" in v) update.daily_goal = v.dailyGoal;
   if ("timezone" in v) update.timezone = v.timezone;
   if ("onboarded" in v) update.onboarded = v.onboarded;
+  if ("leaderboardVisible" in v) update.leaderboard_visible = v.leaderboardVisible;
   if (!Object.keys(update).length) return fail(400, "invalid_body", "Nothing to update.");
 
   const { data, error } = await supabase.from("profiles").update(update).eq("id", userId).select().single();

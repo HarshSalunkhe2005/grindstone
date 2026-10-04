@@ -25,6 +25,7 @@ export default async function SettingsPage() {
           leetcodeHandle: profile.leetcode_handle ?? "",
           codeforcesHandle: profile.codeforces_handle ?? "",
           githubHandle: profile.github_handle ?? "",
+          leaderboardVisible: Boolean(profile.leaderboard_visible),
         }}
       />
     </div>

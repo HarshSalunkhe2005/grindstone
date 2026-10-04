@@ -10,6 +10,8 @@ const LINKS: { href: string; label: string; icon: IconName; desktopOnly?: boolea
   { href: "/roadmap", label: "Roadmap", icon: "tree" },
   { href: "/learn", label: "Learn", icon: "note" },
   { href: "/mock", label: "Mock", icon: "clock", desktopOnly: true },
+  { href: "/friends", label: "Friends", icon: "trophy", desktopOnly: true },
+  { href: "/log", label: "Log", icon: "list", desktopOnly: true },
   { href: "/profile", label: "Profile", icon: "user" },
   { href: "/settings", label: "Settings", icon: "gear" },
 ];

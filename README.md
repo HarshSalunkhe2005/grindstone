@@ -39,6 +39,8 @@ Responses are `{ "data": ... }` or `{ "error": { "code", "message" } }`.
 | GET / PATCH | `/api/v1/me` | profile: name, username, language, handles, target date, daily goal, timezone |
 | GET / POST | `/api/v1/progress` | solved problems; tick or untick one |
 | POST / PATCH | `/api/v1/mock` | `{ minutes }` start a timed mock (or resume the running one); `{ id, solvedIds, finish? }` tick problems and finish |
+| GET / POST / DELETE | `/api/v1/friends` | leaderboard, follow by username, unfollow |
+| POST / DELETE | `/api/v1/log` | add or remove an interview-log entry |
 | PUT | `/api/v1/lessons` | `{ slug, done }` mark a web-dev lesson done or not (idempotent) |
 | POST | `/api/v1/review` | `{ problemId, rating }` record a revision and schedule the next |
 | PATCH | `/api/v1/notes` | `{ problemId, notes?, confidence? }` |
@@ -58,4 +60,6 @@ Done: a web-dev track (`/learn`): 8 modules, 24 short lessons on HTTP and REST, 
 
 Done: timed mock interviews (`/mock`): a 45, 60 or 90 minute round of unsolved problems from topics you have started, with a server-side clock, difficulty-weighted score and history. Finishing a round records the solves as progress (XP, revision ladder).
 
-Next: a friends leaderboard (Redis) and previous-year questions.
+Done: an opt-in friends leaderboard (`/friends`, Postgres functions, no one is visible unless they switch it on) and a private interview log (`/log`) for questions met in real interviews.
+
+Hardening is described in [SECURITY.md](SECURITY.md); `scripts/security-check.py` attacks the live database and API and fails if anything gets through.

@@ -16,6 +16,7 @@ interface Values {
   leetcodeHandle: string;
   codeforcesHandle: string;
   githubHandle: string;
+  leaderboardVisible: boolean;
 }
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
@@ -121,6 +122,27 @@ export function SettingsForm({ initial }: { initial: Values }) {
             <input className="input" value={v.githubHandle} onChange={text("githubHandle")} maxLength={40} autoCapitalize="none" />
           </Field>
         </div>
+      </section>
+
+      <section className="card flex flex-wrap items-center justify-between gap-4 p-6">
+        <div className="max-w-md">
+          <h2 className="font-display text-xl font-semibold">Friends leaderboard</h2>
+          <p className="mt-1 text-sm text-muted">
+            When on, friends who follow your username can see your name, XP and solved count. Nothing else, and you can turn it off any time. You need a username first.
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={v.leaderboardVisible}
+          aria-label="Show me on friends' leaderboards"
+          onClick={() => setV({ ...v, leaderboardVisible: !v.leaderboardVisible })}
+          className="group grid h-11 w-16 place-items-center"
+        >
+          <span className={`relative h-7 w-12 rounded-full border transition-colors ${v.leaderboardVisible ? "border-ember bg-ember" : "border-line-strong bg-bg"}`}>
+            <span className={`absolute top-0.5 size-5 rounded-full transition-all ${v.leaderboardVisible ? "left-6 bg-[#2a1105]" : "left-0.5 bg-muted"}`} />
+          </span>
+        </button>
       </section>
 
       <div className="flex flex-wrap items-center justify-between gap-4">

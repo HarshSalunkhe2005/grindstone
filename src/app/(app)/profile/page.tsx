@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { CountUp } from "@/components/count-up";
 import { Heatmap } from "@/components/heatmap";
 import { SyncButton } from "@/components/sync-button";
-import { Bar, DIFF_COLOR, DIFF_TEXT, Emblem, Ring } from "@/components/ui";
+import Link from "next/link";
+import { Bar, DIFF_COLOR, DIFF_TEXT, Emblem, Icon, Ring } from "@/components/ui";
 import { loadUserContext } from "@/lib/data";
 import { createClient } from "@/lib/supabase/server";
 import { heatmapWeeks } from "@/lib/game";
@@ -80,6 +81,18 @@ export default async function ProfilePage() {
           ))}
         </dl>
       </header>
+
+      <nav aria-label="More tools" className="grid grid-cols-3 gap-3">
+        {[
+          ["/mock", "Mock interview", "clock"],
+          ["/friends", "Friends", "trophy"],
+          ["/log", "Interview log", "list"],
+        ].map(([href, label, icon]) => (
+          <Link key={href} href={href} className="card card-lift glint flex min-h-14 items-center justify-center gap-2 px-3 text-sm font-medium">
+            <Icon name={icon as "clock"} size={16} className="text-ember" /> {label}
+          </Link>
+        ))}
+      </nav>
 
       <section className="card p-5" aria-labelledby="activity-title">
         <h2 id="activity-title" className="font-display mb-4 text-xl font-semibold">
