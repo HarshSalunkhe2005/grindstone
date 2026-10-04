@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fail, ok, rateLimit, requireUser, tooMany } from "@/lib/api";
+import { readJson, fail, ok, rateLimit, requireUser, tooMany } from "@/lib/api";
 import { MOCK_LENGTHS, pickMock } from "@/lib/mock";
 import { topicStats, type Edge, type Problem, type Progress, type Topic } from "@/lib/insights";
 
@@ -15,10 +15,10 @@ export async function POST(request: Request) {
   const { supabase, userId } = await requireUser();
   if (!userId) return fail(401, "unauthorized", "Sign in first.");
 
-  const limit = rateLimit(`mock:${userId}`, 20, 60_000);
+  const limit = await rateLimit(supabase, "mock", 20, 60_000);
   if (!limit.allowed) return tooMany(limit.retryAfter);
 
-  const parsed = Start.safeParse(await request.json().catch(() => null));
+  const parsed = Start.safeParse(await readJson(request));
   if (!parsed.success) return fail(400, "invalid_body", parsed.error.issues[0]?.message ?? "Invalid input.");
 
   const { data: active } = await supabase.from("mock_attempts").select("id").eq("user_id", userId).is("finished_at", null).maybeSingle();
@@ -54,10 +54,10 @@ export async function PATCH(request: Request) {
   const { supabase, userId } = await requireUser();
   if (!userId) return fail(401, "unauthorized", "Sign in first.");
 
-  const limit = rateLimit(`mock-save:${userId}`, 120, 60_000);
+  const limit = await rateLimit(supabase, "mock-save", 120, 60_000);
   if (!limit.allowed) return tooMany(limit.retryAfter);
 
-  const parsed = Update.safeParse(await request.json().catch(() => null));
+  const parsed = Update.safeParse(await readJson(request));
   if (!parsed.success) return fail(400, "invalid_body", parsed.error.issues[0]?.message ?? "Invalid input.");
   const { id, solvedIds, finish } = parsed.data;
 

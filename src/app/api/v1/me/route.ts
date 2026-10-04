@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fail, ok, rateLimit, requireUser, tooMany } from "@/lib/api";
+import { readJson, fail, ok, rateLimit, requireUser, tooMany } from "@/lib/api";
 import { HANDLE_RE } from "@/lib/platforms";
 
 const handle = z
@@ -53,10 +53,10 @@ export async function PATCH(request: Request) {
   const { supabase, userId } = await requireUser();
   if (!userId) return fail(401, "unauthorized", "Sign in first.");
 
-  const limit = rateLimit(`me:${userId}`, 30, 60_000);
+  const limit = await rateLimit(supabase, "me", 30, 60_000);
   if (!limit.allowed) return tooMany(limit.retryAfter);
 
-  const parsed = Patch.safeParse(await request.json().catch(() => null));
+  const parsed = Patch.safeParse(await readJson(request));
   if (!parsed.success) return fail(400, "invalid_body", parsed.error.issues[0]?.message ?? "Invalid input.");
   const v = parsed.data;
 

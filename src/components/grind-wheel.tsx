@@ -59,7 +59,7 @@ function start(THREE: Three, host: HTMLElement, reduced: boolean): () => void {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
   const canvas = renderer.domElement;
-  canvas.style.cssText = "position:relative;z-index:1;width:100%;height:100%;display:block";
+  canvas.className = "relative z-[1] block h-full w-full";
   host.appendChild(canvas);
 
   const scene = new THREE.Scene();

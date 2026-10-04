@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fail, ok, rateLimit, requireUser, tooMany } from "@/lib/api";
+import { readJson, fail, ok, rateLimit, requireUser, tooMany } from "@/lib/api";
 
 const Body = z.object({
   problemId: z.number().int().positive(),
@@ -28,10 +28,10 @@ export async function POST(request: Request) {
   const { supabase, userId } = await requireUser();
   if (!userId) return fail(401, "unauthorized", "Sign in first.");
 
-  const limit = rateLimit(`progress:${userId}`, 120, 60_000);
+  const limit = await rateLimit(supabase, "progress", 120, 60_000);
   if (!limit.allowed) return tooMany(limit.retryAfter);
 
-  const parsed = Body.safeParse(await request.json().catch(() => null));
+  const parsed = Body.safeParse(await readJson(request));
   if (!parsed.success) return fail(400, "invalid_body", "Expected { problemId: number, solved: boolean }.");
   const { problemId, solved } = parsed.data;
 

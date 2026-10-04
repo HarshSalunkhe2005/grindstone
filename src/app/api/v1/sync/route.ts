@@ -8,7 +8,7 @@ export async function POST() {
   const { supabase, userId } = await requireUser();
   if (!userId) return fail(401, "unauthorized", "Sign in first.");
 
-  const limit = rateLimit(`sync:${userId}`, 3, 60_000);
+  const limit = await rateLimit(supabase, "sync", 3, 60_000);
   if (!limit.allowed) return tooMany(limit.retryAfter);
 
   const { data: profile, error } = await supabase

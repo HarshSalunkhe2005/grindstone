@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { connection } from "next/server";
 import { Bricolage_Grotesque, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -14,7 +15,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: "#080a0e", colorScheme: "dark" };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+// Rendering on request lets Next stamp the per-request CSP nonce onto its own scripts (see proxy.ts).
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  await connection();
   return (
     <html lang="en" className={`${geist.variable} ${geistMono.variable} ${bricolage.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">{children}</body>

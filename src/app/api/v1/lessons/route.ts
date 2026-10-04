@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { fail, ok, rateLimit, requireUser, tooMany } from "@/lib/api";
+import { readJson, fail, ok, rateLimit, requireUser, tooMany } from "@/lib/api";
 import { findLesson } from "@/content/lessons";
 
 const Body = z.object({ slug: z.string().min(1).max(60), done: z.boolean() });
@@ -9,10 +9,10 @@ export async function PUT(request: Request) {
   const { supabase, userId } = await requireUser();
   if (!userId) return fail(401, "unauthorized", "Sign in first.");
 
-  const limit = rateLimit(`lessons:${userId}`, 60, 60_000);
+  const limit = await rateLimit(supabase, "lessons", 60, 60_000);
   if (!limit.allowed) return tooMany(limit.retryAfter);
 
-  const parsed = Body.safeParse(await request.json().catch(() => null));
+  const parsed = Body.safeParse(await readJson(request));
   if (!parsed.success) return fail(400, "invalid_body", parsed.error.issues[0]?.message ?? "Invalid input.");
   const { slug, done } = parsed.data;
   if (!findLesson(slug)) return fail(404, "not_found", "No such lesson.");
