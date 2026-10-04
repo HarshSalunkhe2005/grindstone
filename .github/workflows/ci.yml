@@ -17,6 +17,8 @@ jobs:
         with:
           node-version: 24
           cache: npm
+      # The lockfile is written by npm 11; match it so `npm ci` agrees with the lock.
+      - run: npm install -g npm@11.6.2
       - run: npm ci
       - run: npx tsc --noEmit
       - run: npx eslint src tests
