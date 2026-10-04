@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/client";
 const LINKS: { href: string; label: string; icon: IconName }[] = [
   { href: "/today", label: "Today", icon: "bolt" },
   { href: "/roadmap", label: "Roadmap", icon: "tree" },
+  { href: "/learn", label: "Learn", icon: "note" },
   { href: "/profile", label: "Profile", icon: "user" },
   { href: "/settings", label: "Settings", icon: "gear" },
 ];
@@ -92,7 +93,7 @@ export function AppNav({
 
       <nav
         aria-label="Main (mobile)"
-        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden"
       >
         {LINKS.map((l) => (
           <Link

@@ -5,12 +5,14 @@ import { ProblemRow } from "@/components/problem-row";
 import { ReviewQueue, type DueItem } from "@/components/review-queue";
 import { Bar, DIFF_COLOR, Emblem, Icon, Ring, WheelArt } from "@/components/ui";
 import { loadUserContext } from "@/lib/data";
+import { loadCompletedLessons, nextLesson } from "@/lib/learn";
 import { addDays, daysUntil, greeting, longDate } from "@/lib/game";
 
 export const metadata: Metadata = { title: "Today" };
 
 export default async function TodayPage() {
-  const ctx = await loadUserContext();
+  const [ctx, doneLessons] = await Promise.all([loadUserContext(), loadCompletedLessons()]);
+  const lesson = nextLesson(doneLessons);
   const { profile, tz, stats, badges, progress, rec, due, dueToday, picks, perDay, streak, today, solvedToday, goal, level, solvedIds } = ctx;
 
   const topicName = new Map(ctx.topics.map((t) => [t.id, t.title]));
@@ -220,6 +222,16 @@ export default async function TodayPage() {
               {profile.xp} XP · {level.toNext} to the next edge
             </p>
           </section>
+
+          {lesson && (
+            <Link href={`/learn/${lesson.slug}`} className="card card-lift glint block p-5" aria-label={`Next web dev lesson: ${lesson.title}`}>
+              <p className="text-sm text-muted">Web dev · {doneLessons.size === 0 ? "start here" : "up next"}</p>
+              <p className="font-display mt-1 text-lg font-semibold leading-tight">{lesson.title}</p>
+              <p className="mt-1 text-sm text-muted">
+                {lesson.module.title} · <span className="num">{lesson.minutes}</span> min
+              </p>
+            </Link>
+          )}
 
           {nextBadge && (
             <section className="card flex items-center gap-4 p-5" aria-label="Next badge">
